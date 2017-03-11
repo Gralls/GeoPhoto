@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">UAM-Android</string>
+    <string name="authentication_submit">Submit</string>
 </resources>
