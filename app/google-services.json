@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "551289681941",
+    "firebase_url": "https://uam-android.firebaseio.com",
+    "project_id": "uam-android",
+    "storage_bucket": "uam-android.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551289681941:android:91f073c2d74befe4",
+        "android_client_info": {
+          "package_name": "com.springer.patryk.uam_android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "551289681941-qni3pg6831h2phk7c83t59gr1udtl4lf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.springer.patryk.uam_android",
+            "certificate_hash": "726ef49cb6224760db1114341e4d29e7b52994d2"
+          }
+        },
+        {
+          "client_id": "551289681941-s8n3mbr34i1i066c1d832vfao4r220bl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCE1PqQntL6uplW96TPkGAjBUCbo3-L5M0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "551289681941-s8n3mbr34i1i066c1d832vfao4r220bl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

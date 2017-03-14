@@ -1,4 +1,4 @@
-package com.springer.patryk.uam_android.authentication;
+package com.springer.patryk.uam_android.login;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -10,16 +10,16 @@ import com.google.firebase.auth.FirebaseUser;
  * Created by Patryk on 2017-03-11.
  */
 
-public class AuthenticationPresenter implements AuthenticationContract.Presenter {
+public class LoginPresenter implements LoginContract.Presenter {
 
-    private static final String TAG = "AuthenticationPresenter";
+    private static final String TAG = "LoginPresenter";
 
-    private AuthenticationContract.View mAuthenticationView;
+    private LoginContract.View mAuthenticationView;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    public AuthenticationPresenter(@NonNull AuthenticationContract.View authenticationView) {
+    public LoginPresenter(@NonNull LoginContract.View authenticationView) {
         mAuthenticationView = authenticationView;
         mAuthenticationView.setPresenter(this);
 

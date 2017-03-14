@@ -1,14 +1,14 @@
-package com.springer.patryk.uam_android.authentication;
+package com.springer.patryk.uam_android.login;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.springer.patryk.uam_android.R;
@@ -18,16 +18,16 @@ import com.springer.patryk.uam_android.R;
  * Created by Patryk on 2017-03-11.
  */
 
-public class AuthenticationFragment extends Fragment implements AuthenticationContract.View {
+public class LoginFragment extends Fragment implements LoginContract.View {
 
-    private AuthenticationContract.Presenter mPresenter;
+    private LoginContract.Presenter mPresenter;
 
-    private EditText mEmail;
-    private EditText mPassword;
-    private Button mSubmit;
+    private TextInputEditText mEmail;
+    private TextInputEditText mPassword;
+    private AppCompatButton mSubmit;
 
-    public static AuthenticationFragment newInstance() {
-        return new AuthenticationFragment();
+    public static LoginFragment newInstance() {
+        return new LoginFragment();
     }
 
     @Override
@@ -43,7 +43,7 @@ public class AuthenticationFragment extends Fragment implements AuthenticationCo
     }
 
     @Override
-    public void setPresenter(@NonNull AuthenticationContract.Presenter presenter) {
+    public void setPresenter(@NonNull LoginContract.Presenter presenter) {
         mPresenter = presenter;
     }
 
@@ -62,9 +62,9 @@ public class AuthenticationFragment extends Fragment implements AuthenticationCo
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_authentication, container);
 
-        mEmail = (EditText) view.findViewById(R.id.email);
-        mPassword = (EditText) view.findViewById(R.id.password);
-        mSubmit = (Button) view.findViewById(R.id.submitButton);
+        mEmail = (TextInputEditText) view.findViewById(R.id.email);
+        mPassword = (TextInputEditText) view.findViewById(R.id.password);
+        mSubmit = (AppCompatButton) view.findViewById(R.id.submitButton);
 
         mSubmit.setOnClickListener(view1 -> mPresenter.checkCredentials(mEmail.getText().toString()
                 , mPassword.getText().toString()));
