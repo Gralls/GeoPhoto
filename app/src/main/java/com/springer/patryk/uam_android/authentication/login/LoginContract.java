@@ -1,4 +1,6 @@
-package com.springer.patryk.uam_android.login;
+package com.springer.patryk.uam_android.authentication.login;
+
+import android.support.annotation.StringRes;
 
 import com.springer.patryk.uam_android.BasePresenter;
 import com.springer.patryk.uam_android.BaseView;
@@ -13,8 +15,11 @@ public interface LoginContract {
 
         void showAuthenticationError();
 
-        void showMainPage();
+        void setEmailError(@StringRes int errorMessage);
 
+        void setPasswordError(@StringRes int errorMessage);
+
+        void showMainPage();
 
     }
 

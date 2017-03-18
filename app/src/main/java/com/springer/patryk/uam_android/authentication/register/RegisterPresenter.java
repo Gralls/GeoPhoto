@@ -1,27 +1,29 @@
-package com.springer.patryk.uam_android.login;
+package com.springer.patryk.uam_android.authentication.register;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.springer.patryk.uam_android.R;
 
 /**
  * Created by Patryk on 2017-03-11.
  */
 
-public class LoginPresenter implements LoginContract.Presenter {
+public class RegisterPresenter implements RegisterContract.Presenter {
 
-    private static final String TAG = "LoginPresenter";
+    private static final String TAG = "RegisterPresenter";
 
-    private LoginContract.View mAuthenticationView;
+    private RegisterContract.View mAuthenticationView;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    public LoginPresenter(@NonNull LoginContract.View authenticationView) {
+    public RegisterPresenter(@NonNull RegisterContract.View authenticationView) {
         mAuthenticationView = authenticationView;
         mAuthenticationView.setPresenter(this);
+
 
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = firebaseAuth -> {
@@ -46,8 +48,31 @@ public class LoginPresenter implements LoginContract.Presenter {
     }
 
     @Override
-    public void checkCredentials(String email, String password) {
-        mAuth.signInWithEmailAndPassword(email, password)
+    public void checkCredentials(String email, String password, String confirmPassword) {
+        boolean validation = true;
+        if (email.isEmpty()) {
+            validation = false;
+            mAuthenticationView.showEmailError(R.string.required_field);
+        }
+        if (password.isEmpty()) {
+            validation = false;
+            mAuthenticationView.showPasswordError(R.string.required_field);
+        }
+        if (confirmPassword.isEmpty()) {
+            validation = false;
+            mAuthenticationView.showConfirmPasswordError(R.string.required_field);
+        }
+        if (!confirmPassword.equals(password)) {
+            validation = false;
+            mAuthenticationView.showPasswordError(R.string.different_passwords_error);
+            mAuthenticationView.showConfirmPasswordError(R.string.different_passwords_error);
+        }
+        if (validation)
+            createUser(email, password);
+    }
+
+    private void createUser(String email, String password) {
+        mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
                     if (!task.isSuccessful()) {

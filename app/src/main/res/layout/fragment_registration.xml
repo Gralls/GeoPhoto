@@ -11,30 +11,31 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/logo"/>
+        android:background="@drawable/logo" />
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/login_email_layout"
+        android:id="@+id/register_email_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
         app:errorEnabled="true"
+        app:hintEnabled="true"
         app:errorTextAppearance="@style/error_appearance">
 
         <android.support.design.widget.TextInputEditText
-            android:id="@+id/login_email"
-            android:imeOptions="actionNext"
+            android:id="@+id/register_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="E-mail"
             android:drawableRight="@drawable/ic_email"
+            android:hint="E-mail"
+            android:imeOptions="actionNext"
             android:inputType="textEmailAddress" />
 
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/login_password_layout"
+        android:id="@+id/register_password_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -45,32 +46,53 @@
         app:errorTextAppearance="@style/error_appearance">
 
         <android.support.design.widget.TextInputEditText
-            android:id="@+id/login_password"
-            android:imeOptions="actionDone"
+            android:id="@+id/register_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Password"
+            android:imeOptions="actionDone"
+            android:inputType="textPassword" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/register_confirm_password_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        app:errorEnabled="true"
+        app:hintEnabled="true"
+        app:passwordToggleEnabled="true"
+        app:errorTextAppearance="@style/error_appearance">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/confirm_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Confirm password"
+            android:imeOptions="actionDone"
             android:inputType="textPassword" />
 
     </android.support.design.widget.TextInputLayout>
 
     <android.support.v7.widget.AppCompatButton
-        android:id="@+id/login_button"
+        android:id="@+id/register_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:layout_marginTop="24dp"
-        android:padding="12dp"
         android:drawableRight="@drawable/ic_arrow_forward"
-        android:text="Login" />
+        android:padding="12dp"
+        android:text="Register" />
 
     <TextView
-        android:id="@+id/signup_link"
+        android:id="@+id/signin_link"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        android:text="No account yet? Create one!"
         android:gravity="center"
-        android:textSize="16sp"/>
+        android:text="Have account? Sign in!"
+        android:textSize="16sp" />
 
 </LinearLayout>
