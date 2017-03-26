@@ -29,6 +29,7 @@ public class LoginPresenter implements LoginContract.Presenter {
             FirebaseUser user = firebaseAuth.getCurrentUser();
             if (user != null) {
                 Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                mAuthenticationView.showMainPage();
             } else {
                 Log.d(TAG, "onAuthStateChanged:signed_out");
             }
@@ -70,7 +71,7 @@ public class LoginPresenter implements LoginContract.Presenter {
                         Log.w(TAG, "signInWithEmail:failed", task.getException());
                         mAuthenticationView.showAuthenticationError();
                     } else {
-                        mAuthenticationView.showMainPage();
+
                     }
                 });
     }

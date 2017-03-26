@@ -1,6 +1,7 @@
 package com.springer.patryk.uam_android.authentication.login;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,8 +15,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.springer.patryk.uam_android.MainActivity;
 import com.springer.patryk.uam_android.R;
 import com.springer.patryk.uam_android.authentication.AuthenticationActivity;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 
 /**
@@ -27,13 +32,19 @@ public class LoginFragment extends Fragment implements LoginContract.View {
     private LoginContract.Presenter mPresenter;
     private LoginFragmentCallback mCallback;
 
-    private TextInputEditText mEmail;
-    private TextInputLayout mEmailLayout;
-    private TextInputEditText mPassword;
-    private TextInputLayout mPasswordLayout;
+    @BindView(R.id.login_email)
+    TextInputEditText mEmail;
+    @BindView(R.id.login_email_layout)
+    TextInputLayout mEmailLayout;
+    @BindView(R.id.login_password)
+    TextInputEditText mPassword;
+    @BindView(R.id.login_password_layout)
+    TextInputLayout mPasswordLayout;
+    @BindView(R.id.login_button)
+    AppCompatButton mSubmit;
+    @BindView(R.id.signup_link)
+    TextView registerLink;
 
-    private AppCompatButton mSubmit;
-    private TextView registerLink;
     public static LoginFragment newInstance() {
         return new LoginFragment();
     }
@@ -72,7 +83,8 @@ public class LoginFragment extends Fragment implements LoginContract.View {
 
     @Override
     public void showMainPage() {
-        Toast.makeText(getContext(), "Authentication succeeded", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        startActivity(intent);
     }
 
     @Override
@@ -96,13 +108,7 @@ public class LoginFragment extends Fragment implements LoginContract.View {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View loginView = inflater.inflate(R.layout.fragment_authentication, null, false);
-
-        mEmail = (TextInputEditText) loginView.findViewById(R.id.login_email);
-        mEmailLayout = (TextInputLayout) loginView.findViewById(R.id.login_email_layout);
-        mPassword = (TextInputEditText) loginView.findViewById(R.id.login_password);
-        mPasswordLayout = (TextInputLayout) loginView.findViewById(R.id.login_password_layout);
-        mSubmit = (AppCompatButton) loginView.findViewById(R.id.login_button);
-        registerLink = (TextView) loginView.findViewById(R.id.signup_link);
+        ButterKnife.bind(this, loginView);
 
         mSubmit.setOnClickListener(view -> mPresenter.checkCredentials(mEmail.getText().toString()
                 , mPassword.getText().toString()));

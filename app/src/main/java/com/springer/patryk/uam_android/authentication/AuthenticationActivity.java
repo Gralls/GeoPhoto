@@ -11,7 +11,6 @@ import com.springer.patryk.uam_android.utils.ActivityUtils;
 public class AuthenticationActivity extends AppCompatActivity implements LoginFragment.LoginFragmentCallback, RegisterFragment.RegisterFragmentCallback {
 
     private LoginFragment mLoginFragment;
-    private RegisterFragment mRegisterFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,8 +23,6 @@ public class AuthenticationActivity extends AppCompatActivity implements LoginFr
             mLoginFragment = LoginFragment.newInstance();
             ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), mLoginFragment, R.id.container);
         }
-
-        mRegisterFragment = RegisterFragment.newInstance();
     }
 
     @Override

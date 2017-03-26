@@ -17,6 +17,9 @@ import android.widget.Toast;
 import com.springer.patryk.uam_android.R;
 import com.springer.patryk.uam_android.authentication.AuthenticationActivity;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 
 /**
  * Created by Patryk on 2017-03-11.
@@ -27,14 +30,22 @@ public class RegisterFragment extends Fragment implements RegisterContract.View 
     private RegisterContract.Presenter mPresenter;
     private RegisterFragmentCallback mCallback;
 
-    private TextInputEditText mEmail;
-    private TextInputLayout mEmailLayout;
-    private TextInputEditText mPassword;
-    private TextInputLayout mPasswordLayout;
-    private TextInputEditText mConfirmPassword;
-    private TextInputLayout mConfirmPasswordLayout;
-    private AppCompatButton mSubmit;
-    private TextView loginLink;
+    @BindView(R.id.register_email)
+    TextInputEditText mEmail;
+    @BindView(R.id.register_email_layout)
+    TextInputLayout mEmailLayout;
+    @BindView(R.id.register_password)
+    TextInputEditText mPassword;
+    @BindView(R.id.register_password_layout)
+    TextInputLayout mPasswordLayout;
+    @BindView(R.id.confirm_password)
+    TextInputEditText mConfirmPassword;
+    @BindView(R.id.register_confirm_password_layout)
+    TextInputLayout mConfirmPasswordLayout;
+    @BindView(R.id.register_button)
+    AppCompatButton mSubmit;
+    @BindView(R.id.signin_link)
+    TextView loginLink;
 
     public static RegisterFragment newInstance() {
         return new RegisterFragment();
@@ -103,15 +114,7 @@ public class RegisterFragment extends Fragment implements RegisterContract.View 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View registerView = inflater.inflate(R.layout.fragment_registration, null, false);
-
-        mEmail = (TextInputEditText) registerView.findViewById(R.id.register_email);
-        mEmailLayout = (TextInputLayout) registerView.findViewById(R.id.register_email_layout);
-        mPassword = (TextInputEditText) registerView.findViewById(R.id.register_password);
-        mPasswordLayout = (TextInputLayout) registerView.findViewById(R.id.register_password_layout);
-        mConfirmPassword = (TextInputEditText) registerView.findViewById(R.id.confirm_password);
-        mConfirmPasswordLayout = (TextInputLayout) registerView.findViewById(R.id.register_confirm_password_layout);
-        mSubmit = (AppCompatButton) registerView.findViewById(R.id.register_button);
-        loginLink = (TextView) registerView.findViewById(R.id.signin_link);
+        ButterKnife.bind(this, registerView);
 
         mSubmit.setOnClickListener(view -> mPresenter.checkCredentials(mEmail.getText().toString()
                 , mPassword.getText().toString(), mConfirmPassword.getText().toString()));
@@ -124,4 +127,5 @@ public class RegisterFragment extends Fragment implements RegisterContract.View 
     public interface RegisterFragmentCallback {
         void showLoginFragment();
     }
+
 }

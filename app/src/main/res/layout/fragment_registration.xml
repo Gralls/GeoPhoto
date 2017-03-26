@@ -9,8 +9,9 @@
     android:paddingRight="24dp">
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:background="@drawable/logo" />
 
     <android.support.design.widget.TextInputLayout
@@ -93,6 +94,7 @@
         android:layout_marginBottom="24dp"
         android:gravity="center"
         android:text="Have account? Sign in!"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:textColor="@color/md_white_1000" />
 
 </LinearLayout>
