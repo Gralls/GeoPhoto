@@ -23,13 +23,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.springer.patryk.uam_android.R;
-import com.springer.patryk.uam_android.model.Picture;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,11 +32,12 @@ import butterknife.ButterKnife;
  * Created by Patryk on 2017-03-22.
  */
 
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends Fragment implements OnMapReadyCallback, MapContract.View {
 
 
     private static final int CAPTURE_IMAGE_ACTIVITY = 1;
 
+    private MapContract.Presenter mPresenter;
 
     SupportMapFragment mapFragment;
 
@@ -53,6 +48,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     public static MapFragment newInstance() {
         return new MapFragment();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mPresenter = new MapPresenter(this);
     }
 
     @Nullable
@@ -88,24 +89,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
+
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            mPresenter.savePicture(FirebaseAuth.getInstance().getCurrentUser().getUid(), bitmap, location);
 
-            Picture picture = new Picture(FirebaseAuth.getInstance().getCurrentUser().getUid(),
-                    location.getLongitude(),
-                    location.getLatitude(),
-                    bitmap
-            );
-
-            DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-            String key = database.child("picture").push().getKey();
-            Map<String, Object> pictureValues = picture.toMap();
-            Map<String, Object> childUpdates = new HashMap<>();
-            childUpdates.put("/pictures/" + key, pictureValues);
-            childUpdates.put("/user-picture/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/" + key,
-                    pictureValues);
-
-            database.updateChildren(childUpdates);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mPresenter.subscribe();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mPresenter.unsubscribe();
     }
 
     @Override
@@ -113,4 +113,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
 
+    @Override
+    public void setPresenter(MapContract.Presenter presenter) {
+        mPresenter = presenter;
+    }
 }
