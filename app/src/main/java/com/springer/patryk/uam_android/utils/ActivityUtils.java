@@ -21,10 +21,13 @@ public class ActivityUtils {
 
     public static void replaceFragment(@NonNull FragmentManager fragmentManager,
                                        @NonNull Fragment fragment, int frameId,
+                                       boolean addToBackStack,
                                        @AnimRes int animIn, @AnimRes int animOut) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(animIn, animOut);
         transaction.replace(frameId, fragment);
+        if(addToBackStack)
+            transaction.addToBackStack(null);
         transaction.commit();
     }
 

@@ -23,7 +23,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.firebase.auth.FirebaseAuth;
+import com.springer.patryk.uam_android.MainActivity;
 import com.springer.patryk.uam_android.R;
+import com.springer.patryk.uam_android.authentication.AuthenticationActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,6 +40,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     private static final int CAPTURE_IMAGE_ACTIVITY = 1;
 
     private MapContract.Presenter mPresenter;
+    private PictureTakenCallback mCallback;
 
     SupportMapFragment mapFragment;
 
@@ -59,6 +62,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         View mapView = inflater.inflate(R.layout.fragment_map, null, false);
         ButterKnife.bind(this, mapView);
 
@@ -79,10 +83,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mCallback = (MainActivity) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(mCallback.toString() +
+                    "must implement PictureTakenCallback");
+        }
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAPTURE_IMAGE_ACTIVITY && resultCode == Activity.RESULT_OK) {
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-            pictureView.setVisibility(View.VISIBLE);
+
+            mCallback.onPictureTaken(data.getExtras());
+            /*pictureView.setVisibility(View.VISIBLE);
             pictureView.setImageBitmap(bitmap);
 
             LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
@@ -91,7 +108,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
             }
 
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            mPresenter.savePicture(FirebaseAuth.getInstance().getCurrentUser().getUid(), bitmap, location);
+            mPresenter.savePicture(FirebaseAuth.getInstance().getCurrentUser().getUid(), bitmap, location);*/
 
         }
     }
@@ -116,5 +133,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     @Override
     public void setPresenter(MapContract.Presenter presenter) {
         mPresenter = presenter;
+    }
+
+    public interface PictureTakenCallback{
+        void onPictureTaken(Bundle args);
     }
 }

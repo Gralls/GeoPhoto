@@ -28,12 +28,12 @@ public class AuthenticationActivity extends AppCompatActivity implements LoginFr
     @Override
     public void showLoginFragment() {
         ActivityUtils.replaceFragment(getSupportFragmentManager(), LoginFragment.newInstance()
-                , R.id.container, R.anim.enter_from_left, R.anim.exit_to_left);
+                , R.id.container,false ,R.anim.enter_from_left, R.anim.exit_to_left);
     }
 
     @Override
     public void showRegisterFragment() {
         ActivityUtils.replaceFragment(getSupportFragmentManager(), RegisterFragment.newInstance()
-                , R.id.container, R.anim.enter_from_right, R.anim.exit_to_right);
+                , R.id.container,false, R.anim.enter_from_right, R.anim.exit_to_right);
     }
 }

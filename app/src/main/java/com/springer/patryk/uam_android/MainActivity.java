@@ -6,13 +6,14 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.springer.patryk.uam_android.map.MapFragment;
+import com.springer.patryk.uam_android.picture.SendPictureFragment;
 import com.springer.patryk.uam_android.utils.ActivityUtils;
 
 /**
  * Created by Patryk on 2017-03-25.
  */
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MapFragment.PictureTakenCallback {
 
     private MapFragment mapFragment;
 
@@ -33,8 +34,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        FirebaseAuth.getInstance().signOut();
-        super.onBackPressed();
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0)
+            FirebaseAuth.getInstance().signOut();
+        else
+            super.onBackPressed();
+    }
 
+    @Override
+    public void onPictureTaken(Bundle args) {
+        SendPictureFragment sendPictureFragment = SendPictureFragment.newInstance();
+        sendPictureFragment.setArguments(args);
+        ActivityUtils.replaceFragment(getSupportFragmentManager(), sendPictureFragment, R.id.container,true, android.R.anim.fade_in, android.R.anim.fade_out);
     }
 }
