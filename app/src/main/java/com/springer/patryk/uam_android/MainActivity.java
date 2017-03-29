@@ -1,7 +1,9 @@
 package com.springer.patryk.uam_android;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,6 +31,12 @@ public class MainActivity extends AppCompatActivity implements MapFragment.Pictu
             ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), mapFragment, R.id.container);
         }
 
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }
 
     }
 
@@ -44,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.Pictu
     public void onPictureTaken(Bundle args) {
         SendPictureFragment sendPictureFragment = SendPictureFragment.newInstance();
         sendPictureFragment.setArguments(args);
-        ActivityUtils.replaceFragment(getSupportFragmentManager(), sendPictureFragment, R.id.container,true, android.R.anim.fade_in, android.R.anim.fade_out);
+        ActivityUtils.replaceFragment(getSupportFragmentManager(), sendPictureFragment, R.id.container, true, android.R.anim.fade_in, android.R.anim.fade_out);
     }
+
 }

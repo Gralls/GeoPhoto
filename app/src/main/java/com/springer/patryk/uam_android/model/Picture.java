@@ -1,8 +1,10 @@
 package com.springer.patryk.uam_android.model;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Base64;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -25,6 +27,38 @@ public class Picture {
     public Picture() {
     }
 
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public Double getLongtitude() {
+        return longtitude;
+    }
+
+    public void setLongtitude(Double longtitude) {
+        this.longtitude = longtitude;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
     public Picture(String uid, Double longtitude, Double latitude, Bitmap image) {
         this.uid = uid;
         this.longtitude = longtitude;
@@ -41,11 +75,16 @@ public class Picture {
         return result;
     }
 
-    private String convertToBase64(Bitmap image) {
+    public String convertToBase64(Bitmap image) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         byte[] byteFormat = stream.toByteArray();
         return Base64.encodeToString(byteFormat, Base64.NO_WRAP);
+    }
+
+    public static Bitmap convertBase64ToBitmap(String base64) {
+        byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
     }
 
     public void saveToFirebase() {
@@ -60,5 +99,18 @@ public class Picture {
                 pictureValues);
 
         database.updateChildren(childUpdates);
+    }
+
+    public LatLng getPosition() {
+        return new LatLng(this.getLatitude(), this.longtitude);
+    }
+
+    @Override
+    public String toString() {
+        return "Picture{" +
+                "uid='" + uid + '\'' +
+                ", longtitude=" + longtitude +
+                ", latitude=" + latitude +
+                '}';
     }
 }
