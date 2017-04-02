@@ -3,4 +3,7 @@
     <string name="authentication_submit">Submit</string>
     <string name="required_field">This field is required</string>
     <string name="different_passwords_error">Passwords are not matching</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="picture_status_text">This picture should be public?</string>
 </resources>

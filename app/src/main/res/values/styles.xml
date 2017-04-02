@@ -1,20 +1,20 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/md_indigo_200</item>
+        <item name="colorPrimary">@color/md_light_green_700</item>
         <item name="colorPrimaryDark">@color/md_light_green_800</item>
         <item name="colorAccent">@color/md_blue_grey_900</item>
     </style>
     <style name="AppTheme.Dark" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">@color/md_indigo_200</item>
+        <item name="colorPrimary">@color/md_light_green_700</item>
         <item name="colorPrimaryDark">@color/md_light_green_800</item>
         <item name="colorAccent">@color/md_blue_grey_900</item>
 
         <item name="android:windowBackground">@color/md_light_green_900</item>
 
-        <item name="colorControlNormal">@color/md_yellow_900</item>
+        <item name="colorControlNormal">@color/md_white_1000</item>
         <item name="colorControlActivated">@color/md_white_1000</item>
         <item name="colorControlHighlight">@color/md_white_1000</item>
         <item name="android:textColorHint">@color/md_white_1000</item>

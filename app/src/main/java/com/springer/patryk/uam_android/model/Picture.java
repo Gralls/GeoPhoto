@@ -19,11 +19,12 @@ import java.util.Map;
 
 public class Picture {
 
+    private String pictureId;
     private String uid;
     private Double longtitude;
     private Double latitude;
     private String image;
-
+    private String description;
     public Picture() {
     }
 
@@ -72,6 +73,7 @@ public class Picture {
         result.put("longtitude", longtitude);
         result.put("latitude", latitude);
         result.put("image", image);
+        result.put("description", description);
         return result;
     }
 
@@ -87,16 +89,21 @@ public class Picture {
         return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
     }
 
-    public void saveToFirebase() {
+    public void saveToFirebase(boolean isPublic) {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
         String key = database.child("picture").push().getKey();
 
         Map<String, Object> pictureValues = this.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
 
-        childUpdates.put("/pictures/" + key, pictureValues);
-        childUpdates.put("/user-picture/" + this.uid + "/" + key,
-                pictureValues);
+        if (isPublic) {
+            childUpdates.put("/pictures/" + key, pictureValues);
+            childUpdates.put("/user-picture/" + this.uid + "/" + key,
+                    pictureValues);
+        } else {
+            childUpdates.put("/user-picture/" + this.uid + "/" + key,
+                    pictureValues);
+        }
 
         database.updateChildren(childUpdates);
     }
@@ -112,5 +119,21 @@ public class Picture {
                 ", longtitude=" + longtitude +
                 ", latitude=" + latitude +
                 '}';
+    }
+
+    public String getPictureId() {
+        return pictureId;
+    }
+
+    public void setPictureId(String pictureId) {
+        this.pictureId = pictureId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

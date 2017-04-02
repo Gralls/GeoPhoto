@@ -110,6 +110,9 @@ public class LoginFragment extends Fragment implements LoginContract.View {
         View loginView = inflater.inflate(R.layout.fragment_authentication, null, false);
         ButterKnife.bind(this, loginView);
 
+        mEmail.setText("patryk.springer@gmail.com");
+        mPassword.setText("Qwerty123");
+
         mSubmit.setOnClickListener(view -> mPresenter.checkCredentials(mEmail.getText().toString()
                 , mPassword.getText().toString()));
 

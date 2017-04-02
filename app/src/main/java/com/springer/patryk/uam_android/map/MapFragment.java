@@ -3,10 +3,7 @@ package com.springer.patryk.uam_android.map;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
@@ -14,23 +11,26 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.FileProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.FirebaseDatabase;
 import com.springer.patryk.uam_android.MainActivity;
 import com.springer.patryk.uam_android.R;
 import com.springer.patryk.uam_android.model.Picture;
 
+import java.io.File;
 import java.util.List;
 
 import butterknife.BindView;
@@ -47,13 +47,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
 
     private MapContract.Presenter mPresenter;
     private PictureTakenCallback mCallback;
+    private CameraPosition cameraPosition;
 
     SupportMapFragment mapFragment;
     private GoogleMap map;
     @BindView(R.id.take_picture)
     FloatingActionButton takePicture;
-    @BindView(R.id.picture)
-    ImageView pictureView;
 
     public static MapFragment newInstance() {
         return new MapFragment();
@@ -72,18 +71,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         View mapView = inflater.inflate(R.layout.fragment_map, null, false);
         ButterKnife.bind(this, mapView);
         FragmentManager fm = getChildFragmentManager();
-        mapFragment = (SupportMapFragment) fm.findFragmentByTag("mapFragment");
 
-        if (mapFragment == null) {
-            mapFragment = new SupportMapFragment();
+        if (savedInstanceState == null) {
+            mapFragment = SupportMapFragment.newInstance();
             FragmentTransaction ft = fm.beginTransaction();
             ft.add(R.id.mapContainer, mapFragment, "mapFragment");
             ft.commit();
+        } else {
+            mapFragment = (SupportMapFragment) fm.findFragmentByTag("mapFragment");
         }
 
 
         takePicture.setOnClickListener(view -> {
             Intent takePicture1 = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            File path = new File(getActivity().getFilesDir(), "pictures");
+            if (!path.exists()) path.mkdirs();
+            File file = new File(path, "image.jpg");
+            takePicture1.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(getActivity(), getActivity().getApplicationContext().getPackageName() + ".provider", file));
             startActivityForResult(takePicture1, CAPTURE_IMAGE_ACTIVITY);
         });
 
@@ -110,7 +114,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAPTURE_IMAGE_ACTIVITY && resultCode == Activity.RESULT_OK) {
-            mCallback.onPictureTaken(data.getExtras());
+            File path = new File(getActivity().getFilesDir(), "pictures");
+            if (!path.exists()) path.mkdirs();
+            File file = new File(path, "image.jpg");
+            mCallback.onPictureTaken(Uri.fromFile(file));
         }
     }
 
@@ -135,23 +142,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     @Override
     public void setMarkers(List<Picture> pictures) {
         for (Picture picture : pictures) {
-            map.addMarker(new MarkerOptions().position(picture.getPosition())
-                    .snippet(picture.getImage()));
+            Marker marker = map.addMarker(new MarkerOptions()
+                    .position(picture.getPosition()));
+            marker.setTag(picture);
         }
-        if (pictures.size() > 0)
-            map.moveCamera(CameraUpdateFactory.newLatLng(pictures.get(0).getPosition()));
-    }
-
-    private BitmapDescriptor prepareMarker(Picture picture) {
-        Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-        Bitmap bmp = Bitmap.createBitmap(80, 80, conf);
-        Canvas canvas1 = new Canvas(bmp);
-        Paint color = new Paint();
-        color.setTextSize(35);
-        color.setColor(Color.BLACK);
-        canvas1.drawBitmap(Picture.convertBase64ToBitmap(picture.getImage()), 0, 0, color);
-        canvas1.drawText(picture.getUid(), 30, 40, color);
-        return BitmapDescriptorFactory.fromBitmap(bmp);
+        if (pictures.size() > 0) {
+            cameraPosition = new CameraPosition.Builder()
+                    .target(pictures.get(0).getPosition())
+                    .zoom(17).build();
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
     }
 
     @Override
@@ -160,7 +160,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     }
 
     public interface PictureTakenCallback {
-        void onPictureTaken(Bundle args);
+        void onPictureTaken(Uri args);
     }
 
     private class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
@@ -173,9 +173,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
 
         @Override
         public View getInfoWindow(Marker marker) {
-
             final ImageView image = (ImageView) view.findViewById(R.id.user_picture);
-            image.setImageBitmap(Picture.convertBase64ToBitmap(marker.getSnippet()));
+            final ImageView delete = (ImageView) view.findViewById(R.id.remove_picture);
+            final TextView pictureInfo = (TextView) view.findViewById(R.id.picture_info);
+
+            Picture picture = (Picture) marker.getTag();
+            image.setImageBitmap(Picture.convertBase64ToBitmap(picture.getImage()));
+            pictureInfo.setText(picture.getDescription());
+            map.setOnInfoWindowClickListener(marker1 -> {
+                FirebaseDatabase.getInstance().getReference()
+                        .child("pictures")
+                        .child(picture.getPictureId())
+                        .removeValue();
+                marker.remove();
+            });
             return view;
         }
 

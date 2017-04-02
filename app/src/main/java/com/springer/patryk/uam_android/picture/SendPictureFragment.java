@@ -1,27 +1,25 @@
 package com.springer.patryk.uam_android.picture;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.springer.patryk.uam_android.R;
 
@@ -35,8 +33,6 @@ import butterknife.ButterKnife;
 public class SendPictureFragment extends Fragment implements SendPictureContract.View {
 
 
-    private static final int CAPTURE_IMAGE_ACTIVITY = 1;
-
     private SendPictureContract.Presenter mPresenter;
 
     @BindView(R.id.new_picture)
@@ -46,8 +42,6 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
     @BindView(R.id.remove_picture)
     FloatingActionButton removePicture;
 
-
-    Bitmap imageResource;
     public static SendPictureFragment newInstance() {
         return new SendPictureFragment();
     }
@@ -56,7 +50,7 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPresenter = new SendPicturePresenter(this);
-        imageResource=(Bitmap) getArguments().get("data");
+
     }
 
     @Nullable
@@ -64,19 +58,33 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View mapView = inflater.inflate(R.layout.fragment_send_picture, null, false);
         ButterKnife.bind(this, mapView);
-
-        pictureView.setImageBitmap(imageResource);
+        mPresenter.convertUriToBitmap(Uri.parse(getArguments().getString("fileUri")));
         sendPicture.setOnClickListener(view -> {
 
-            LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
 
-            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            mPresenter.savePicture(FirebaseAuth.getInstance().getCurrentUser().getUid(),
-                    imageResource,
-                    location);
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+            View dialogView = inflater.inflate(R.layout.dialog_picture_options, null);
+            dialogBuilder.setView(dialogView)
+                    .setPositiveButton("Send picture", (dialogInterface, i) -> {
+
+                        CheckBox isPublic = (CheckBox) dialogView.findViewById(R.id.picture_status);
+                        EditText pictureDescription = (EditText) dialogView.findViewById(R.id.picture_description);
+
+                        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+                        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        mPresenter.savePicture(FirebaseAuth.getInstance().getCurrentUser().getUid(),
+                                location, isPublic.isChecked(), pictureDescription.getText().toString());
+
+                        getActivity().onBackPressed();
+                    })
+                    .setNegativeButton("Cancel", (dialogInterface, i) -> {
+
+                    });
+            dialogBuilder.create().show();
+
         });
 
         removePicture.setOnClickListener(view -> getActivity().onBackPressed());
@@ -97,13 +105,13 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
     }
 
 
-
     @Override
     public void setPresenter(SendPictureContract.Presenter presenter) {
         mPresenter = presenter;
     }
 
-    public interface PictureSent{
-        void onPictureSent();
+    @Override
+    public void setImageResource(Bitmap bmp) {
+        pictureView.setImageBitmap(bmp);
     }
 }

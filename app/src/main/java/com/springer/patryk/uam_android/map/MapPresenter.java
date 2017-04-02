@@ -1,8 +1,6 @@
 package com.springer.patryk.uam_android.map;
 
-import android.graphics.Bitmap;
-import android.location.Location;
-
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,11 +30,17 @@ public class MapPresenter implements MapContract.Presenter {
         valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                //TODO do something clever with separate private and public pictures
                 for (DataSnapshot data : dataSnapshot.child("pictures").getChildren()) {
                     Picture picture = data.getValue(Picture.class);
+                    picture.setPictureId(data.getKey());
                     pictures.add(picture);
                 }
-
+                for (DataSnapshot data : dataSnapshot.child("user-picture").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).getChildren()) {
+                    Picture picture = data.getValue(Picture.class);
+                    picture.setPictureId(data.getKey());
+                    pictures.add(picture);
+                }
                 mView.setMarkers(pictures);
             }
 
@@ -55,12 +59,6 @@ public class MapPresenter implements MapContract.Presenter {
     @Override
     public void unsubscribe() {
         mDatabase.removeEventListener(valueEventListener);
-    }
-
-    @Override
-    public void savePicture(String userId, Bitmap image, Location location) {
-        Picture picture = new Picture(userId, location.getLongitude(), location.getLatitude(), image);
-        picture.saveToFirebase();
     }
 
 }

@@ -2,18 +2,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/picture_background"
+    android:padding="10dp">
+
 
     <ImageView
         android:id="@+id/user_picture"
-        android:layout_width="wrap_content"
+        android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="5dp"
-        android:scaleType="centerCrop"
+        android:scaleType="fitCenter"
         android:adjustViewBounds="true" />
 
     <TextView
-        android:id="@+id/user_name"
+        android:id="@+id/picture_info"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Tekst"
+        android:layout_gravity="center_vertical"
+        android:textColor="@color/md_white_1000" />
+
+    <ImageView
+        android:id="@+id/remove_picture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_cancel" />
 </LinearLayout>

@@ -1,8 +1,5 @@
 package com.springer.patryk.uam_android.map;
 
-import android.graphics.Bitmap;
-import android.location.Location;
-
 import com.springer.patryk.uam_android.BasePresenter;
 import com.springer.patryk.uam_android.BaseView;
 import com.springer.patryk.uam_android.model.Picture;
@@ -23,7 +20,6 @@ public class MapContract {
 
     interface Presenter extends BasePresenter {
 
-        void savePicture(String userId, Bitmap image, Location location);
     }
 
 }
