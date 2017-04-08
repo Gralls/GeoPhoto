@@ -2,15 +2,20 @@ package com.springer.patryk.uam_android.model;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Base64;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by Patryk on 2017-03-26.
@@ -25,6 +30,10 @@ public class Picture {
     private Double latitude;
     private String image;
     private String description;
+    private String downloadUrl;
+
+    private byte[] imageStorage;
+
     public Picture() {
     }
 
@@ -46,6 +55,10 @@ public class Picture {
 
     public Double getLatitude() {
         return latitude;
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
     }
 
     public void setLatitude(Double latitude) {
@@ -72,16 +85,16 @@ public class Picture {
         result.put("uid", uid);
         result.put("longtitude", longtitude);
         result.put("latitude", latitude);
-        result.put("image", image);
         result.put("description", description);
+        result.put("downloadUrl", downloadUrl);
         return result;
     }
 
     public String convertToBase64(Bitmap image) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        byte[] byteFormat = stream.toByteArray();
-        return Base64.encodeToString(byteFormat, Base64.NO_WRAP);
+        imageStorage = stream.toByteArray();
+        return Base64.encodeToString(imageStorage, Base64.NO_WRAP);
     }
 
     public static Bitmap convertBase64ToBitmap(String base64) {
@@ -89,23 +102,31 @@ public class Picture {
         return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
     }
 
+    @SuppressWarnings("VisibleForTests")
     public void saveToFirebase(boolean isPublic) {
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-        String key = database.child("picture").push().getKey();
+        UploadTask uploadTask = FirebaseStorage.getInstance().getReference().child(uid).child(UUID.randomUUID().toString() + ".jpg").putBytes(imageStorage);
+        uploadTask.addOnSuccessListener(taskSnapshot -> {
+            Uri downloadUri = taskSnapshot.getDownloadUrl();
+            downloadUrl = downloadUri.toString();
+            DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+            String key = database.child("picture").push().getKey();
 
-        Map<String, Object> pictureValues = this.toMap();
-        Map<String, Object> childUpdates = new HashMap<>();
+            Map<String, Object> pictureValues = this.toMap();
+            Map<String, Object> childUpdates = new HashMap<>();
 
-        if (isPublic) {
-            childUpdates.put("/pictures/" + key, pictureValues);
-            childUpdates.put("/user-picture/" + this.uid + "/" + key,
-                    pictureValues);
-        } else {
-            childUpdates.put("/user-picture/" + this.uid + "/" + key,
-                    pictureValues);
-        }
+            if (isPublic) {
+                childUpdates.put("/pictures/" + key, pictureValues);
+                childUpdates.put("/user-picture/" + this.uid + "/" + key,
+                        pictureValues);
+            } else {
+                childUpdates.put("/user-picture/" + this.uid + "/" + key,
+                        pictureValues);
+            }
 
-        database.updateChildren(childUpdates);
+            database.updateChildren(childUpdates);
+            Log.d("URI", "Download uri: " + downloadUri.toString());
+        }).addOnFailureListener(e -> Log.d("URI", "Upload failed"));
+
     }
 
     public LatLng getPosition() {

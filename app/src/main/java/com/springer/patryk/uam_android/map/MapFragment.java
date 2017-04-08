@@ -29,6 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.springer.patryk.uam_android.MainActivity;
 import com.springer.patryk.uam_android.R;
 import com.springer.patryk.uam_android.model.Picture;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.List;
@@ -178,7 +179,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
             final TextView pictureInfo = (TextView) view.findViewById(R.id.picture_info);
 
             Picture picture = (Picture) marker.getTag();
-            image.setImageBitmap(Picture.convertBase64ToBitmap(picture.getImage()));
+            Picasso.with(getContext()).load(picture.getDownloadUrl()).into(image);
             pictureInfo.setText(picture.getDescription());
             map.setOnInfoWindowClickListener(marker1 -> {
                 FirebaseDatabase.getInstance().getReference()
