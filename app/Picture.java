@@ -1,4 +1,4 @@
-package com.springer.patryk.uam_android.model;
+package com.springer.patryk.geo_photo.model;
 
 import android.graphics.Bitmap;
 import android.util.Base64;
@@ -44,8 +44,7 @@ public class Picture {
         byte[] byteFormat = stream.toByteArray();
         return Base64.encodeToString(byteFormat, Base64.NO_WRAP);
     }
-<<<<<<< Updated upstream
-=======
+
 
     public void saveToFirebase() {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
@@ -57,5 +56,5 @@ public class Picture {
                 pictureValues);
         database.updateChildren(childUpdates);
     }
->>>>>>> Stashed changes
+
 }
