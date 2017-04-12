@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">UAM-Android</string>
+    <string name="app_name">GeoPhoto</string>
     <string name="authentication_submit">Submit</string>
     <string name="required_field">This field is required</string>
     <string name="different_passwords_error">Passwords are not matching</string>
