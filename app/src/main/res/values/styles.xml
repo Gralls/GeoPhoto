@@ -10,7 +10,7 @@
     <style name="AppTheme.Dark" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/md_light_green_700</item>
         <item name="colorPrimaryDark">@color/md_light_green_800</item>
-        <item name="colorAccent">@color/md_blue_grey_900</item>
+        <item name="colorAccent">@color/md_green_300</item>
 
         <item name="android:windowBackground">@color/md_light_green_900</item>
 

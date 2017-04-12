@@ -6,6 +6,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -15,14 +16,13 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.springer.patryk.geo_photo.cluster_pictures.ClusterFragment;
 import com.springer.patryk.geo_photo.map.MapFragment;
 import com.springer.patryk.geo_photo.model.Picture;
 import com.springer.patryk.geo_photo.picture.SendPictureFragment;
+import com.springer.patryk.geo_photo.picture_details.PictureDetailsFragment;
 import com.springer.patryk.geo_photo.utils.ActivityUtils;
 
 import java.io.Serializable;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -113,8 +113,12 @@ public class MainActivity extends AppCompatActivity implements MapFragment.Pictu
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
-            FirebaseAuth.getInstance().signOut();
-            finish();
+            Snackbar.make(findViewById(R.id.take_picture), "You want to logout?", Snackbar.LENGTH_LONG)
+                    .setAction("Logout", view -> {
+                        FirebaseAuth.getInstance().signOut();
+                        finish();
+                    }).show();
+
         } else
             super.onBackPressed();
     }
@@ -130,10 +134,10 @@ public class MainActivity extends AppCompatActivity implements MapFragment.Pictu
 
     @Override
     public void onClusterClickedListener(Picture picture) {
-        ClusterFragment clusterFragment = ClusterFragment.newInstance();
+        PictureDetailsFragment pictureDetailsFragment = PictureDetailsFragment.newInstance();
         Bundle bundle = new Bundle();
         bundle.putSerializable("picture", (Serializable) picture);
-        clusterFragment.setArguments(bundle);
-        ActivityUtils.replaceFragment(getSupportFragmentManager(), clusterFragment, R.id.container, true, android.R.anim.fade_in, android.R.anim.fade_out);
+        pictureDetailsFragment.setArguments(bundle);
+        ActivityUtils.replaceFragment(getSupportFragmentManager(), pictureDetailsFragment, R.id.container, true, android.R.anim.fade_in, android.R.anim.fade_out);
     }
 }

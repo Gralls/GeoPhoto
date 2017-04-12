@@ -10,6 +10,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.maps.android.clustering.ClusterItem;
 
@@ -33,6 +34,7 @@ public class Picture implements ClusterItem, Serializable {
     private String image;
     private String description;
     private String downloadUrl;
+    private boolean isPublic;
 
     private byte[] imageStorage;
 
@@ -106,6 +108,7 @@ public class Picture implements ClusterItem, Serializable {
 
     @SuppressWarnings("VisibleForTests")
     public void saveToFirebase(boolean isPublic) {
+        this.isPublic = isPublic;
         UploadTask uploadTask = FirebaseStorage.getInstance().getReference().child(uid).child(UUID.randomUUID().toString() + ".jpg").putBytes(imageStorage);
         uploadTask.addOnSuccessListener(taskSnapshot -> {
             Uri downloadUri = taskSnapshot.getDownloadUrl();
@@ -116,7 +119,7 @@ public class Picture implements ClusterItem, Serializable {
             Map<String, Object> pictureValues = this.toMap();
             Map<String, Object> childUpdates = new HashMap<>();
 
-            if (isPublic) {
+            if (this.isPublic) {
                 childUpdates.put("/pictures/" + key, pictureValues);
                 childUpdates.put("/user-picture/" + this.uid + "/" + key,
                         pictureValues);
@@ -128,6 +131,19 @@ public class Picture implements ClusterItem, Serializable {
             database.updateChildren(childUpdates);
             Log.d("URI", "Download uri: " + downloadUri.toString());
         }).addOnFailureListener(e -> Log.d("URI", "Upload failed"));
+
+    }
+
+    public void removeFromFirebase(OnPictureRemovedListener callback) {
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference(isPublic ? "/pictures/" + this.pictureId : "/user-picture/" + this.uid + "/" + this.pictureId);
+        StorageReference storage = FirebaseStorage.getInstance().getReferenceFromUrl(this.downloadUrl);
+
+        database.removeValue()
+                .addOnFailureListener(databaseRef -> callback.onFailure())
+                .addOnSuccessListener(databaseRef -> storage.delete()
+                        .addOnFailureListener(storageRef -> callback.onFailure())
+                        .addOnSuccessListener(storageRef -> callback.onSuccess()));
+
 
     }
 
@@ -169,4 +185,11 @@ public class Picture implements ClusterItem, Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public interface OnPictureRemovedListener {
+        void onSuccess();
+
+        void onFailure();
+    }
+
 }
