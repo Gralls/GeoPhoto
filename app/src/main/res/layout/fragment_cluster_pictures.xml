@@ -4,9 +4,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/cluster_recycler"
+    <ImageView
+        android:id="@+id/picture_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="end"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_delete"
+        android:layout_weight="1"/>
+
+    <ImageView
+        android:id="@+id/picture_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        android:layout_weight="8"/>
+
+    <TextView
+        android:id="@+id/picture_label"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textSize="20sp" />
 
 </LinearLayout>

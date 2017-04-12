@@ -115,8 +115,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.Pictu
         if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
             FirebaseAuth.getInstance().signOut();
             finish();
-        }
-        else
+        } else
             super.onBackPressed();
     }
 
@@ -130,10 +129,10 @@ public class MainActivity extends AppCompatActivity implements MapFragment.Pictu
     }
 
     @Override
-    public void onClusterClickedListener(List<Picture> pictures) {
+    public void onClusterClickedListener(Picture picture) {
         ClusterFragment clusterFragment = ClusterFragment.newInstance();
         Bundle bundle = new Bundle();
-        bundle.putSerializable("s", (Serializable) pictures);
+        bundle.putSerializable("picture", (Serializable) picture);
         clusterFragment.setArguments(bundle);
         ActivityUtils.replaceFragment(getSupportFragmentManager(), clusterFragment, R.id.container, true, android.R.anim.fade_in, android.R.anim.fade_out);
     }

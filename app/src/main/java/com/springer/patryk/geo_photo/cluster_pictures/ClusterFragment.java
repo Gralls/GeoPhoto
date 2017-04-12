@@ -8,9 +8,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.springer.patryk.geo_photo.R;
 import com.springer.patryk.geo_photo.model.Picture;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -23,9 +26,15 @@ import butterknife.ButterKnife;
 
 public class ClusterFragment extends Fragment {
 
-    @BindView(R.id.cluster_recycler)
-    RecyclerView recyclerView;
 
+    @BindView(R.id.picture_remove)
+    ImageView removePicture;
+    @BindView(R.id.picture_view)
+    ImageView pictureImage;
+    @BindView(R.id.picture_label)
+    TextView pictureDescription;
+
+    private Picture picture;
     public static ClusterFragment newInstance() {
         return new ClusterFragment();
     }
@@ -36,10 +45,16 @@ public class ClusterFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_cluster_pictures, null, false);
         ButterKnife.bind(this, view);
 
-        List<Picture> pictre = (List<Picture>) getArguments().getSerializable("s");
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
-        recyclerView.setLayoutManager(layoutManager);
-        // recyclerView.setAdapter(new ClusterAdapter(pictre,getContext()));
+        picture = (Picture) getArguments().getSerializable("picture");
+
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        Picasso.with(getContext()).load(picture.getDownloadUrl()).into(pictureImage);
+        pictureDescription.setText(picture.getDescription());
     }
 }

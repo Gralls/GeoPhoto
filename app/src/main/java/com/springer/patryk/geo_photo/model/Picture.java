@@ -14,6 +14,7 @@ import com.google.firebase.storage.UploadTask;
 import com.google.maps.android.clustering.ClusterItem;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -23,7 +24,7 @@ import java.util.UUID;
  */
 
 
-public class Picture implements ClusterItem {
+public class Picture implements ClusterItem, Serializable {
 
     private String pictureId;
     private String uid;

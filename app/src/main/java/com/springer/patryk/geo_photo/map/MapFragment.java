@@ -32,7 +32,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.clustering.ClusterManager;
 import com.springer.patryk.geo_photo.MainActivity;
 import com.springer.patryk.geo_photo.R;
-import com.springer.patryk.geo_photo.cluster_pictures.ClusterAdapter;
 import com.springer.patryk.geo_photo.model.Picture;
 import com.squareup.picasso.Picasso;
 
@@ -97,13 +96,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         } else {
             mapFragment = (SupportMapFragment) fm.findFragmentByTag("mapFragment");
         }
+
+
+        return mapView;
+    }
+
+    private void prepareBottomSheet(){
         bottomSheetBehavior = BottomSheetBehavior.from(frameLayout);
         bottomSheetBehavior.setHideable(true);
         bottomSheetBehavior.setPeekHeight(0);
-        adapter = new ClusterAdapter(getContext());
+        adapter = new ClusterAdapter(getContext(),clusterClickedCallback);
         bottomPictures.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         bottomPictures.setAdapter(adapter);
-        takePicture.setOnClickListener(view -> {
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        prepareBottomSheet();
+
+         takePicture.setOnClickListener(view1 -> {
             Intent takePicture1 = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             File path = new File(getActivity().getFilesDir(), "pictures");
             if (!path.exists()) path.mkdirs();
@@ -111,13 +123,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
             takePicture1.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(getActivity(), getActivity().getApplicationContext().getPackageName() + ".provider", file));
             startActivityForResult(takePicture1, CAPTURE_IMAGE_ACTIVITY);
         });
-
-        return mapView;
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
         mapFragment.getMapAsync(this);
     }
 
@@ -159,15 +164,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         map.setInfoWindowAdapter(new CustomInfoWindowAdapter(LayoutInflater.from(getActivity())));
-        mClusterManager = new ClusterManager<Picture>(getContext(), map);
+        mClusterManager = new ClusterManager<>(getContext(), map);
         mClusterManager.setOnClusterItemClickListener(picture -> {
             clickedClusterItem = picture;
             return false;
         });
         mClusterManager.setOnClusterClickListener(cluster -> {
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(cluster.getPosition())
+                    .zoom(10)
+                    .build();
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             adapter.setPictureList(new ArrayList<>(cluster.getItems()));
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-            //    clusterClickedCallback.onClusterClickedListener(new ArrayList<>(cluster.getItems()));
             return false;
         });
         map.setOnInfoWindowCloseListener(marker -> clickedClusterItem = null);
@@ -199,7 +208,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     }
 
     public interface ClusterClicked {
-        void onClusterClickedListener(List<Picture> pictures);
+        void onClusterClickedListener(Picture picture);
     }
 
     private class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
@@ -223,11 +232,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
                 Picasso.with(getContext()).load(clickedClusterItem.getDownloadUrl()).into(image);
                 pictureInfo.setText(clickedClusterItem.getDescription());
                 map.setOnInfoWindowClickListener(marker1 -> {
-                    FirebaseDatabase.getInstance().getReference()
-                            .child("pictures")
-                            .child(clickedClusterItem.getPictureId())
-                            .removeValue();
-                    marker.remove();
+                    clusterClickedCallback.onClusterClickedListener(clickedClusterItem);
                 });
                 return view;
             }

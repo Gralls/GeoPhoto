@@ -1,4 +1,4 @@
-package com.springer.patryk.geo_photo.cluster_pictures;
+package com.springer.patryk.geo_photo.map;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -22,17 +22,25 @@ public class ClusterAdapter extends RecyclerView.Adapter<ClusterAdapter.ViewHold
 
     private List<Picture> pictureList;
     private Context mContext;
+    private MapFragment.ClusterClicked mCallback;
 
-    public ClusterAdapter(Context mContext) {
+    public ClusterAdapter(Context mContext, MapFragment.ClusterClicked callback) {
         pictureList = new ArrayList<>();
         this.mContext = mContext;
+        mCallback = callback;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.picture_item, parent, false);
-        return new ViewHolder(itemView);
+
+        ViewHolder holder = new ViewHolder(itemView);
+
+        itemView.setOnClickListener(view -> mCallback.onClusterClickedListener(pictureList.get(holder.getAdapterPosition())));
+
+        return holder;
     }
 
     @Override
