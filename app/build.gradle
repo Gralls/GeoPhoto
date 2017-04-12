@@ -3,10 +3,10 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         config {
-            keyPassword '9qcnqzwz'
-            storeFile file('C:/Users/Patryk/Documents/android.jks')
-            storePassword '9qcnqzwz'
-            keyAlias 'GeoPhotoKey'
+            keyPassword RELEASE_KEY_PASSWORD
+            storeFile file(RELEASE_STORE_FILE)
+            storePassword RELEASE_STORE_PASSWORD
+            keyAlias RELEASE_STORE_ALIAS
         }
     }
     compileSdkVersion 25
