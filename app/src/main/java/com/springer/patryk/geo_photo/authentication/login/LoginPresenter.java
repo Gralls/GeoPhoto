@@ -1,7 +1,6 @@
 package com.springer.patryk.geo_photo.authentication.login;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,13 +26,8 @@ public class LoginPresenter implements LoginContract.Presenter {
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = firebaseAuth -> {
             FirebaseUser user = firebaseAuth.getCurrentUser();
-            if (user != null) {
-                Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+            if (user != null)
                 mAuthenticationView.showMainPage();
-            } else {
-                Log.d(TAG, "onAuthStateChanged:signed_out");
-            }
-
         };
     }
 
@@ -49,6 +43,7 @@ public class LoginPresenter implements LoginContract.Presenter {
 
     @Override
     public void checkCredentials(String email, String password) {
+        //TODO add watchers to editText
         boolean validation = true;
         if (email.isEmpty()) {
             validation = false;
@@ -66,13 +61,8 @@ public class LoginPresenter implements LoginContract.Presenter {
     public void loginUser(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
-                    Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
-                    if (!task.isSuccessful()) {
-                        Log.w(TAG, "signInWithEmail:failed", task.getException());
+                    if (!task.isSuccessful())
                         mAuthenticationView.showAuthenticationError();
-                    } else {
-
-                    }
                 });
     }
 }

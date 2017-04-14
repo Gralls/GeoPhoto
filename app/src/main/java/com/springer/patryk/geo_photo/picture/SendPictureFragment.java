@@ -60,12 +60,10 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
         ButterKnife.bind(this, mapView);
         mPresenter.convertUriToBitmap(Uri.parse(getArguments().getString("fileUri")));
         sendPicture.setOnClickListener(view -> {
-
-
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
             View dialogView = inflater.inflate(R.layout.dialog_picture_options, null);
             dialogBuilder.setView(dialogView)
-                    .setPositiveButton("Send picture", (dialogInterface, i) -> {
+                    .setPositiveButton(R.string.send_picture, (dialogInterface, i) -> {
 
                         CheckBox isPublic = (CheckBox) dialogView.findViewById(R.id.picture_status);
                         EditText pictureDescription = (EditText) dialogView.findViewById(R.id.picture_description);
@@ -80,7 +78,7 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
 
                         getActivity().onBackPressed();
                     })
-                    .setNegativeButton("Cancel", (dialogInterface, i) -> {
+                    .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
 
                     });
             dialogBuilder.create().show();

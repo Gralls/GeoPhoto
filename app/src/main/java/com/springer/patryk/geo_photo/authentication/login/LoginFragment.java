@@ -43,10 +43,49 @@ public class LoginFragment extends Fragment implements LoginContract.View {
     @BindView(R.id.login_button)
     AppCompatButton mSubmit;
     @BindView(R.id.signup_link)
-    TextView registerLink;
+    TextView mRegisterLink;
 
     public static LoginFragment newInstance() {
         return new LoginFragment();
+    }
+
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mCallback = (AuthenticationActivity) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(mCallback.toString() +
+                    "must implement LoginFragmentCallback");
+        }
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mPresenter = new LoginPresenter(this);
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View loginView = inflater.inflate(R.layout.fragment_authentication, null, false);
+        ButterKnife.bind(this, loginView);
+
+        mEmail.setText("patryk.springer@gmail.com");
+        mPassword.setText("Qwerty123");
+
+        mSubmit.setOnClickListener(view ->
+                mPresenter.checkCredentials(
+                        mEmail.getText().toString(),
+                        mPassword.getText().toString()
+                ));
+
+        mRegisterLink.setOnClickListener(view ->
+                mCallback.showRegisterFragment());
+
+        return loginView;
     }
 
     @Override
@@ -87,39 +126,6 @@ public class LoginFragment extends Fragment implements LoginContract.View {
         startActivity(intent);
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            mCallback = (AuthenticationActivity) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(mCallback.toString() +
-                    "must implement LoginFragmentCallback");
-        }
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mPresenter = new LoginPresenter(this);
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View loginView = inflater.inflate(R.layout.fragment_authentication, null, false);
-        ButterKnife.bind(this, loginView);
-
-        mEmail.setText("patryk.springer@gmail.com");
-        mPassword.setText("Qwerty123");
-
-        mSubmit.setOnClickListener(view -> mPresenter.checkCredentials(mEmail.getText().toString()
-                , mPassword.getText().toString()));
-
-        registerLink.setOnClickListener(view -> mCallback.showRegisterFragment());
-
-        return loginView;
-    }
 
     public interface LoginFragmentCallback {
         void showRegisterFragment();

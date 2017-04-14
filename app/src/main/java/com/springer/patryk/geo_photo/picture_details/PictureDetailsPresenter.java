@@ -25,6 +25,7 @@ public class PictureDetailsPresenter implements PictureDetailsContract.Presenter
 
     }
 
+
     @Override
     public void removePicture() {
         picture.removeFromFirebase(this);

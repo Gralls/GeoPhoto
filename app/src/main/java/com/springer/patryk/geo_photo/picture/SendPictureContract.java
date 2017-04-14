@@ -11,7 +11,7 @@ import com.springer.patryk.geo_photo.BaseView;
  * Created by Patryk on 2017-03-22.
  */
 
-public class SendPictureContract {
+interface SendPictureContract {
 
     interface View extends BaseView<Presenter> {
 

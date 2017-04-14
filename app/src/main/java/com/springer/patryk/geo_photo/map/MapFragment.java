@@ -27,8 +27,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.clustering.ClusterManager;
 import com.springer.patryk.geo_photo.MainActivity;
 import com.springer.patryk.geo_photo.R;
@@ -48,6 +48,12 @@ import butterknife.ButterKnife;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, MapContract.View {
 
+    @BindView(R.id.take_picture)
+    FloatingActionButton takePicture;
+    @BindView(R.id.bottom_sheet)
+    FrameLayout frameLayout;
+    @BindView(R.id.cluster_pictures)
+    RecyclerView bottomPictures;
 
     private static final int CAPTURE_IMAGE_ACTIVITY = 1;
 
@@ -59,12 +65,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     private Picture clickedClusterItem;
     SupportMapFragment mapFragment;
     private GoogleMap map;
-    @BindView(R.id.take_picture)
-    FloatingActionButton takePicture;
-    @BindView(R.id.bottom_sheet)
-    FrameLayout frameLayout;
-    @BindView(R.id.cluster_pictures)
-    RecyclerView bottomPictures;
+
     private ClusterAdapter adapter;
 
 
@@ -72,6 +73,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
 
     public static MapFragment newInstance() {
         return new MapFragment();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mCallback = (MainActivity) context;
+            clusterClickedCallback = (MainActivity) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(mCallback.toString() +
+                    "must implement PictureTakenCallback");
+        }
     }
 
     @Override
@@ -97,17 +110,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
             mapFragment = (SupportMapFragment) fm.findFragmentByTag("mapFragment");
         }
 
-
         return mapView;
-    }
-
-    private void prepareBottomSheet(){
-        bottomSheetBehavior = BottomSheetBehavior.from(frameLayout);
-        bottomSheetBehavior.setHideable(true);
-        bottomSheetBehavior.setPeekHeight(0);
-        adapter = new ClusterAdapter(getContext(),clusterClickedCallback);
-        bottomPictures.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        bottomPictures.setAdapter(adapter);
     }
 
     @Override
@@ -115,7 +118,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         super.onViewCreated(view, savedInstanceState);
         prepareBottomSheet();
 
-         takePicture.setOnClickListener(view1 -> {
+        takePicture.setOnClickListener(view1 -> {
             Intent takePicture1 = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             File path = new File(getActivity().getFilesDir(), "pictures");
             if (!path.exists()) path.mkdirs();
@@ -126,26 +129,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         mapFragment.getMapAsync(this);
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            mCallback = (MainActivity) context;
-            clusterClickedCallback = (MainActivity) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(mCallback.toString() +
-                    "must implement PictureTakenCallback");
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CAPTURE_IMAGE_ACTIVITY && resultCode == Activity.RESULT_OK) {
-            File path = new File(getActivity().getFilesDir(), "pictures");
-            if (!path.exists()) path.mkdirs();
-            File file = new File(path, "image.jpg");
-            mCallback.onPictureTaken(Uri.fromFile(file));
-        }
+    private void prepareBottomSheet() {
+        bottomSheetBehavior = BottomSheetBehavior.from(frameLayout);
+        bottomSheetBehavior.setHideable(true);
+        bottomSheetBehavior.setPeekHeight(0);
+        adapter = new ClusterAdapter(getContext(), clusterClickedCallback);
+        bottomPictures.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        bottomPictures.setAdapter(adapter);
     }
 
     @Override
@@ -160,6 +150,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         mPresenter.unsubscribe();
     }
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CAPTURE_IMAGE_ACTIVITY && resultCode == Activity.RESULT_OK) {
+            File path = new File(getActivity().getFilesDir(), "pictures");
+            if (!path.exists()) path.mkdirs();
+            File file = new File(path, "image.jpg");
+            mCallback.onPictureTaken(Uri.fromFile(file));
+        }
+    }
+
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
@@ -170,14 +173,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
             return false;
         });
         mClusterManager.setOnClusterClickListener(cluster -> {
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(cluster.getPosition())
-                    .zoom(10)
-                    .build();
-            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+            LatLngBounds.Builder builder = LatLngBounds.builder();
+            for (Picture picture : cluster.getItems()) {
+                builder.include(picture.getPosition());
+            }
+
+            final LatLngBounds bounds = builder.build();
+
+            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+
             adapter.setPictureList(new ArrayList<>(cluster.getItems()));
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-            return false;
+            return true;
         });
         map.setOnInfoWindowCloseListener(marker -> clickedClusterItem = null);
         map.setOnCameraIdleListener(mClusterManager);
@@ -190,12 +198,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         mClusterManager.clearItems();
         mClusterManager.addItems(pictures);
         mClusterManager.cluster();
-        if (pictures.size() > 0) {
-            cameraPosition = new CameraPosition.Builder()
-                    .target(pictures.get(0).getPosition())
-                    .zoom(17).build();
-            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        }
     }
 
     @Override
@@ -226,14 +228,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
             if (clickedClusterItem != null) {
 
                 final ImageView image = (ImageView) view.findViewById(R.id.user_picture);
-                final ImageView delete = (ImageView) view.findViewById(R.id.remove_picture);
                 final TextView pictureInfo = (TextView) view.findViewById(R.id.picture_info);
 
                 Picasso.with(getContext()).load(clickedClusterItem.getDownloadUrl()).into(image);
+
                 pictureInfo.setText(clickedClusterItem.getDescription());
-                map.setOnInfoWindowClickListener(marker1 -> {
-                    clusterClickedCallback.onClusterClickedListener(clickedClusterItem);
-                });
+                map.setOnInfoWindowClickListener(marker1 ->
+                        clusterClickedCallback.onClusterClickedListener(clickedClusterItem));
+
                 return view;
             }
             return null;

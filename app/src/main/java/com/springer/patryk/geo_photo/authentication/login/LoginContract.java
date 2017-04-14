@@ -9,7 +9,7 @@ import com.springer.patryk.geo_photo.BaseView;
  * Created by Patryk on 2017-03-11.
  */
 
-public interface LoginContract {
+interface LoginContract {
 
     interface View extends BaseView<Presenter> {
 

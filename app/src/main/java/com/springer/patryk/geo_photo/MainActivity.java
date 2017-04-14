@@ -1,9 +1,11 @@
 package com.springer.patryk.geo_photo;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -22,8 +24,6 @@ import com.springer.patryk.geo_photo.picture.SendPictureFragment;
 import com.springer.patryk.geo_photo.picture_details.PictureDetailsFragment;
 import com.springer.patryk.geo_photo.utils.ActivityUtils;
 
-import java.io.Serializable;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -33,8 +33,8 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements MapFragment.PictureTakenCallback, MapFragment.ClusterClicked {
 
+    private static final int PERMISSION_ALL_REQUEST_CODEON = 1;
     private MapFragment mapFragment;
-
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.drawer_layout)
@@ -54,20 +54,26 @@ public class MainActivity extends AppCompatActivity implements MapFragment.Pictu
             ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), mapFragment, R.id.container);
         }
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-        }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) !=
-                PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
+        String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.CAMERA};
+
+        if (!hasPermissions(this, PERMISSIONS)) {
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL_REQUEST_CODEON);
         }
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         setupDrawer();
+    }
+
+    public static boolean hasPermissions(Context context, String... permissions) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void setupDrawer() {
@@ -113,8 +119,8 @@ public class MainActivity extends AppCompatActivity implements MapFragment.Pictu
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
-            Snackbar.make(findViewById(R.id.take_picture), "You want to logout?", Snackbar.LENGTH_LONG)
-                    .setAction("Logout", view -> {
+            Snackbar.make(findViewById(R.id.take_picture), R.string.logout_confirm, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.logout, logout -> {
                         FirebaseAuth.getInstance().signOut();
                         finish();
                     }).show();
@@ -129,15 +135,29 @@ public class MainActivity extends AppCompatActivity implements MapFragment.Pictu
         Bundle bundle = new Bundle();
         bundle.putString("fileUri", args.toString());
         sendPictureFragment.setArguments(bundle);
-        ActivityUtils.replaceFragment(getSupportFragmentManager(), sendPictureFragment, R.id.container, true, android.R.anim.fade_in, android.R.anim.fade_out);
+        ActivityUtils.replaceFragment(
+                getSupportFragmentManager(),
+                sendPictureFragment,
+                R.id.container,
+                true,
+                android.R.anim.fade_in,
+                android.R.anim.fade_out
+        );
     }
 
     @Override
     public void onClusterClickedListener(Picture picture) {
         PictureDetailsFragment pictureDetailsFragment = PictureDetailsFragment.newInstance();
         Bundle bundle = new Bundle();
-        bundle.putSerializable("picture", (Serializable) picture);
+        bundle.putSerializable("picture", picture);
         pictureDetailsFragment.setArguments(bundle);
-        ActivityUtils.replaceFragment(getSupportFragmentManager(), pictureDetailsFragment, R.id.container, true, android.R.anim.fade_in, android.R.anim.fade_out);
+        ActivityUtils.replaceFragment(
+                getSupportFragmentManager(),
+                pictureDetailsFragment,
+                R.id.container,
+                true,
+                android.R.anim.fade_in,
+                android.R.anim.fade_out
+        );
     }
 }

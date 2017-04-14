@@ -8,7 +8,7 @@ import com.springer.patryk.geo_photo.model.Picture;
  * Created by Patryk on 2017-04-12.
  */
 
-public class PictureDetailsContract {
+interface PictureDetailsContract {
 
     interface View extends BaseView<PictureDetailsContract.Presenter> {
 

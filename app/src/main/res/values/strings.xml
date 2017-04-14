@@ -6,4 +6,11 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="picture_status_text">This picture should be public?</string>
+    <string name="send_picture">Send picture</string>
+    <string name="cancel">Canccel</string>
+    <string name="delete_picture_prove">Are you sure?</string>
+    <string name="picture_removed_info">Picture removed!</string>
+    <string name="picture_removed_error">Something went wrong :(</string>
+    <string name="logout_confirm">You want to logout?</string>
+    <string name="logout">Logout</string>
 </resources>

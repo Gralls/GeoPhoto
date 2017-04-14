@@ -53,17 +53,22 @@ public class PictureDetailsFragment extends Fragment implements PictureDetailsCo
         Picture picture = (Picture) getArguments().getSerializable("picture");
         mPresenter.setPicture(picture);
 
-        removePicture.setOnClickListener(view12 -> Snackbar.make(view12, "Are you sure?", Snackbar.LENGTH_LONG)
-                .setAction("Delete", view1 -> mPresenter.removePicture()).show());
+        removePicture.setOnClickListener(removePicture -> Snackbar.make(removePicture, R.string.delete_picture_prove, Snackbar.LENGTH_LONG)
+                .setAction("Delete", snackbar -> mPresenter.removePicture()).show());
 
         return view;
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onResume() {
+        super.onResume();
+        mPresenter.subscribe();
+    }
 
-
+    @Override
+    public void onPause() {
+        super.onPause();
+        mPresenter.unsubscribe();
     }
 
     @Override
@@ -83,12 +88,12 @@ public class PictureDetailsFragment extends Fragment implements PictureDetailsCo
 
     @Override
     public void onPictureDeleteSuccess() {
-        Toast.makeText(getContext(), "Picture removed!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), R.string.picture_removed_info, Toast.LENGTH_SHORT).show();
         getActivity().onBackPressed();
     }
 
     @Override
     public void onPictureDeleteFailure() {
-        Toast.makeText(getContext(), "Something went wrong :(", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), R.string.picture_removed_error, Toast.LENGTH_SHORT).show();
     }
 }

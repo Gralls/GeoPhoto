@@ -52,6 +52,37 @@ public class RegisterFragment extends Fragment implements RegisterContract.View 
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mCallback = (AuthenticationActivity) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(mCallback.toString() +
+                    "must implement RegisterFragmentCallback");
+        }
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mPresenter = new RegisterPresenter(this);
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View registerView = inflater.inflate(R.layout.fragment_registration, null, false);
+        ButterKnife.bind(this, registerView);
+
+        mSubmit.setOnClickListener(view -> mPresenter.checkCredentials(mEmail.getText().toString()
+                , mPassword.getText().toString(), mConfirmPassword.getText().toString()));
+
+        loginLink.setOnClickListener(view -> mCallback.showLoginFragment());
+
+        return registerView;
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         mPresenter.subscribe();
@@ -91,37 +122,6 @@ public class RegisterFragment extends Fragment implements RegisterContract.View 
     @Override
     public void showMainPage() {
         Toast.makeText(getContext(), "Authentication succeeded", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mPresenter = new RegisterPresenter(this);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            mCallback = (AuthenticationActivity) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(mCallback.toString() +
-                    "must implement RegisterFragmentCallback");
-        }
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View registerView = inflater.inflate(R.layout.fragment_registration, null, false);
-        ButterKnife.bind(this, registerView);
-
-        mSubmit.setOnClickListener(view -> mPresenter.checkCredentials(mEmail.getText().toString()
-                , mPassword.getText().toString(), mConfirmPassword.getText().toString()));
-
-        loginLink.setOnClickListener(view -> mCallback.showLoginFragment());
-
-        return registerView;
     }
 
     public interface RegisterFragmentCallback {

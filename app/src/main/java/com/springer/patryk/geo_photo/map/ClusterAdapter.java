@@ -18,13 +18,13 @@ import java.util.List;
  * Created by Patryk on 2017-04-08.
  */
 
-public class ClusterAdapter extends RecyclerView.Adapter<ClusterAdapter.ViewHolder> {
+class ClusterAdapter extends RecyclerView.Adapter<ClusterAdapter.ViewHolder> {
 
     private List<Picture> pictureList;
     private Context mContext;
     private MapFragment.ClusterClicked mCallback;
 
-    public ClusterAdapter(Context mContext, MapFragment.ClusterClicked callback) {
+    ClusterAdapter(Context mContext, MapFragment.ClusterClicked callback) {
         pictureList = new ArrayList<>();
         this.mContext = mContext;
         mCallback = callback;
@@ -38,7 +38,11 @@ public class ClusterAdapter extends RecyclerView.Adapter<ClusterAdapter.ViewHold
 
         ViewHolder holder = new ViewHolder(itemView);
 
-        itemView.setOnClickListener(view -> mCallback.onClusterClickedListener(pictureList.get(holder.getAdapterPosition())));
+        itemView.setOnClickListener(item ->
+                mCallback.onClusterClickedListener(
+                        pictureList.get(holder.getAdapterPosition())
+                )
+        );
 
         return holder;
     }
@@ -54,17 +58,17 @@ public class ClusterAdapter extends RecyclerView.Adapter<ClusterAdapter.ViewHold
         return pictureList.size();
     }
 
-    public void setPictureList(List<Picture> pictureList) {
+    void setPictureList(List<Picture> pictureList) {
         this.pictureList = pictureList;
         notifyDataSetChanged();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public ImageView imageView;
+        ImageView imageView;
 
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.cluster_picture);
         }
