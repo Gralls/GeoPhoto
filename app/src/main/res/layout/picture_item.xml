@@ -5,12 +5,23 @@
     android:orientation="vertical"
     android:padding="5dp">
 
+    <ViewAnimator
+        android:id="@+id/picture_item_animator"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/cluster_picture"
-        android:layout_width="90dp"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+        <ImageView
+            android:id="@+id/cluster_picture"
+            android:layout_width="90dp"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
+    </ViewAnimator>
 
 
 </LinearLayout>

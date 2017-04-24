@@ -1,26 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/picture_background"
-    android:padding="10dp">
-
+    android:orientation="horizontal">
 
     <ImageView
         android:id="@+id/user_picture"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="5dp"
-        android:scaleType="fitCenter"
-        android:adjustViewBounds="true" />
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter" />
 
-    <TextView
-        android:id="@+id/picture_info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Tekst"
-        android:layout_gravity="center_vertical"
-        android:textColor="@color/md_white_1000" />
-
-</LinearLayout>
+</FrameLayout>

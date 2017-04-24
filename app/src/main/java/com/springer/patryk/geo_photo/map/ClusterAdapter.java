@@ -6,9 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ViewAnimator;
 
 import com.springer.patryk.geo_photo.R;
 import com.springer.patryk.geo_photo.model.Picture;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -22,9 +24,9 @@ class ClusterAdapter extends RecyclerView.Adapter<ClusterAdapter.ViewHolder> {
 
     private List<Picture> pictureList;
     private Context mContext;
-    private MapFragment.ClusterClicked mCallback;
+    private BottomSheetPictureClickedListener mCallback;
 
-    ClusterAdapter(Context mContext, MapFragment.ClusterClicked callback) {
+    ClusterAdapter(Context mContext, BottomSheetPictureClickedListener callback) {
         pictureList = new ArrayList<>();
         this.mContext = mContext;
         mCallback = callback;
@@ -39,7 +41,7 @@ class ClusterAdapter extends RecyclerView.Adapter<ClusterAdapter.ViewHolder> {
         ViewHolder holder = new ViewHolder(itemView);
 
         itemView.setOnClickListener(item ->
-                mCallback.onClusterClickedListener(
+                mCallback.onPictureClick(
                         pictureList.get(holder.getAdapterPosition())
                 )
         );
@@ -50,7 +52,18 @@ class ClusterAdapter extends RecyclerView.Adapter<ClusterAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Picture picture = pictureList.get(position);
-        Picasso.with(mContext).load(picture.getDownloadUrl()).into(holder.imageView);
+        holder.animator.setDisplayedChild(0);
+        Picasso.with(mContext).load(picture.getDownloadUrl()).into(holder.imageView, new Callback() {
+            @Override
+            public void onSuccess() {
+                holder.animator.setDisplayedChild(1);
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
     }
 
     @Override
@@ -66,12 +79,17 @@ class ClusterAdapter extends RecyclerView.Adapter<ClusterAdapter.ViewHolder> {
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imageView;
-
+        ViewAnimator animator;
 
         ViewHolder(View itemView) {
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.cluster_picture);
+            animator = (ViewAnimator) itemView.findViewById(R.id.picture_item_animator);
         }
+    }
+
+    public interface BottomSheetPictureClickedListener {
+        void onPictureClick(Picture picture);
     }
 
 }

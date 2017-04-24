@@ -20,19 +20,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.clustering.ClusterManager;
 import com.springer.patryk.geo_photo.MainActivity;
 import com.springer.patryk.geo_photo.R;
 import com.springer.patryk.geo_photo.model.Picture;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -46,7 +44,7 @@ import butterknife.ButterKnife;
  * Created by Patryk on 2017-03-22.
  */
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, MapContract.View {
+public class MapFragment extends Fragment implements OnMapReadyCallback, MapContract.View, ClusterAdapter.BottomSheetPictureClickedListener {
 
     @BindView(R.id.take_picture)
     FloatingActionButton takePicture;
@@ -60,16 +58,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     private MapContract.Presenter mPresenter;
     private PictureTakenCallback mCallback;
     private ClusterClicked clusterClickedCallback;
-    private CameraPosition cameraPosition;
     private ClusterManager<Picture> mClusterManager;
     private Picture clickedClusterItem;
-    SupportMapFragment mapFragment;
+    private SupportMapFragment mapFragment;
     private GoogleMap map;
+    private Marker marker;
 
     private ClusterAdapter adapter;
 
 
     private BottomSheetBehavior bottomSheetBehavior;
+
+    public MapFragment() {
+    }
 
     public static MapFragment newInstance() {
         return new MapFragment();
@@ -133,7 +134,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         bottomSheetBehavior = BottomSheetBehavior.from(frameLayout);
         bottomSheetBehavior.setHideable(true);
         bottomSheetBehavior.setPeekHeight(0);
-        adapter = new ClusterAdapter(getContext(), clusterClickedCallback);
+        adapter = new ClusterAdapter(getContext(), this);
         bottomPictures.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         bottomPictures.setAdapter(adapter);
     }
@@ -162,7 +163,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     }
 
 
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
@@ -173,21 +173,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
             return false;
         });
         mClusterManager.setOnClusterClickListener(cluster -> {
-
-            LatLngBounds.Builder builder = LatLngBounds.builder();
-            for (Picture picture : cluster.getItems()) {
-                builder.include(picture.getPosition());
-            }
-
-            final LatLngBounds bounds = builder.build();
-
-            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
-
             adapter.setPictureList(new ArrayList<>(cluster.getItems()));
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             return true;
         });
-        map.setOnInfoWindowCloseListener(marker -> clickedClusterItem = null);
         map.setOnCameraIdleListener(mClusterManager);
         map.setOnMarkerClickListener(mClusterManager);
     }
@@ -203,6 +192,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     @Override
     public void setPresenter(MapContract.Presenter presenter) {
         mPresenter = presenter;
+    }
+
+    @Override
+    public void onPictureClick(Picture picture) {
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(picture.getPosition(), 15));
     }
 
     public interface PictureTakenCallback {
@@ -221,29 +216,34 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
             view = inflater.inflate(R.layout.marker_info_window, null);
         }
 
-
         @Override
         public View getInfoWindow(Marker marker) {
-
-            if (clickedClusterItem != null) {
-
-                final ImageView image = (ImageView) view.findViewById(R.id.user_picture);
-                final TextView pictureInfo = (TextView) view.findViewById(R.id.picture_info);
-
-                Picasso.with(getContext()).load(clickedClusterItem.getDownloadUrl()).into(image);
-
-                pictureInfo.setText(clickedClusterItem.getDescription());
-                map.setOnInfoWindowClickListener(marker1 ->
-                        clusterClickedCallback.onClusterClickedListener(clickedClusterItem));
-
-                return view;
-            }
             return null;
         }
 
         @Override
         public View getInfoContents(Marker marker) {
-            return null;
+            final ImageView image = (ImageView) view.findViewById(R.id.user_picture);
+            Picasso.with(getContext()).load(clickedClusterItem.getDownloadUrl()).into(image, new Callback() {
+                @Override
+                public void onSuccess() {
+                    if (marker != null && marker.isInfoWindowShown()) {
+                        marker.hideInfoWindow();
+                        marker.showInfoWindow();
+                    }
+                }
+
+                @Override
+                public void onError() {
+
+                }
+            });
+
+            map.setOnInfoWindowClickListener(marker1 ->
+                    clusterClickedCallback.onClusterClickedListener(clickedClusterItem));
+
+            return view;
+
         }
     }
 }
