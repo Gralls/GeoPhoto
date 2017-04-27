@@ -1,4 +1,4 @@
-# UAM-Android
+# GeoPhoto
 Application allow user to make pictures of interesting places. Then show them at google maps where pictures was made.
 
 Technology used:
