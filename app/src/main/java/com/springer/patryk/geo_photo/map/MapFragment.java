@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -44,7 +43,7 @@ import butterknife.ButterKnife;
  * Created by Patryk on 2017-03-22.
  */
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, MapContract.View, ClusterAdapter.BottomSheetPictureClickedListener {
+public class MapFragment extends Fragment implements OnMapReadyCallback, MapContract.View {
 
     @BindView(R.id.take_picture)
     FloatingActionButton takePicture;
@@ -62,7 +61,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     private Picture clickedClusterItem;
     private SupportMapFragment mapFragment;
     private GoogleMap map;
-    private Marker marker;
 
     private ClusterAdapter adapter;
 
@@ -134,7 +132,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         bottomSheetBehavior = BottomSheetBehavior.from(frameLayout);
         bottomSheetBehavior.setHideable(true);
         bottomSheetBehavior.setPeekHeight(0);
-        adapter = new ClusterAdapter(getContext(), this);
+        adapter = new ClusterAdapter(getContext(), clusterClickedCallback);
         bottomPictures.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         bottomPictures.setAdapter(adapter);
     }
@@ -168,6 +166,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         map = googleMap;
         map.setInfoWindowAdapter(new CustomInfoWindowAdapter(LayoutInflater.from(getActivity())));
         mClusterManager = new ClusterManager<>(getContext(), map);
+        mClusterManager.setRenderer(new com.springer.patryk.geo_photo.map.ClusterRenderer(getContext(), map, mClusterManager));
         mClusterManager.setOnClusterItemClickListener(picture -> {
             clickedClusterItem = picture;
             return false;
@@ -180,6 +179,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         map.setOnCameraIdleListener(mClusterManager);
         map.setOnMarkerClickListener(mClusterManager);
     }
+
 
     @Override
     public void setMarkers(List<Picture> pictures) {
@@ -194,12 +194,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         mPresenter = presenter;
     }
 
-    @Override
-    public void onPictureClick(Picture picture) {
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(picture.getPosition(), 15));
-    }
-
     public interface PictureTakenCallback {
         void onPictureTaken(Uri args);
     }
@@ -212,7 +206,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
 
         private View view;
 
-        public CustomInfoWindowAdapter(LayoutInflater inflater) {
+        CustomInfoWindowAdapter(LayoutInflater inflater) {
             view = inflater.inflate(R.layout.marker_info_window, null);
         }
 
@@ -224,20 +218,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         @Override
         public View getInfoContents(Marker marker) {
             final ImageView image = (ImageView) view.findViewById(R.id.user_picture);
-            Picasso.with(getContext()).load(clickedClusterItem.getDownloadUrl()).into(image, new Callback() {
-                @Override
-                public void onSuccess() {
-                    if (marker != null && marker.isInfoWindowShown()) {
-                        marker.hideInfoWindow();
-                        marker.showInfoWindow();
-                    }
-                }
+            Picasso.with(getContext())
+                    .load(clickedClusterItem.getDownloadUrl())
+                    .into(image, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            if (marker != null && marker.isInfoWindowShown()) {
+                                marker.hideInfoWindow();
+                                marker.showInfoWindow();
+                            }
+                        }
 
-                @Override
-                public void onError() {
+                        @Override
+                        public void onError() {
 
-                }
-            });
+                        }
+                    });
 
             map.setOnInfoWindowClickListener(marker1 ->
                     clusterClickedCallback.onClusterClickedListener(clickedClusterItem));

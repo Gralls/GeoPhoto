@@ -32,9 +32,12 @@ public class MapPresenter implements MapContract.Presenter {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //TODO do something clever with separate private and public pictures
                 pictures = new ArrayList<>();
-                for (DataSnapshot data : dataSnapshot.child("user-picture").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).getChildren()) {
+                for (DataSnapshot data : dataSnapshot.child("pictures").getChildren()) {
                     Picture picture = data.getValue(Picture.class);
                     picture.setPictureId(data.getKey());
+                    if (!picture.isPublicPhoto() && !picture.getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                        continue;
+                    }
                     pictures.add(picture);
                 }
                 mView.setMarkers(pictures);

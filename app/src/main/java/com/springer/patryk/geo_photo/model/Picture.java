@@ -34,7 +34,7 @@ public class Picture implements ClusterItem, Serializable {
     private String image;
     private String description;
     private String downloadUrl;
-    private boolean isPublic;
+    private boolean publicPhoto;
 
     private byte[] imageStorage;
 
@@ -91,6 +91,7 @@ public class Picture implements ClusterItem, Serializable {
         result.put("latitude", latitude);
         result.put("description", description);
         result.put("downloadUrl", downloadUrl);
+        result.put("publicPhoto", publicPhoto);
         return result;
     }
 
@@ -108,8 +109,14 @@ public class Picture implements ClusterItem, Serializable {
 
     @SuppressWarnings("VisibleForTests")
     public void saveToFirebase(boolean isPublic) {
-        this.isPublic = isPublic;
-        UploadTask uploadTask = FirebaseStorage.getInstance().getReference().child(uid).child(UUID.randomUUID().toString() + ".jpg").putBytes(imageStorage);
+        this.publicPhoto = isPublic;
+        UploadTask uploadTask = FirebaseStorage
+                .getInstance()
+                .getReference()
+                .child(uid)
+                .child(UUID.randomUUID().toString() + ".jpg")
+                .putBytes(imageStorage);
+
         uploadTask.addOnSuccessListener(taskSnapshot -> {
             Uri downloadUri = taskSnapshot.getDownloadUrl();
             downloadUrl = downloadUri.toString();
@@ -119,14 +126,7 @@ public class Picture implements ClusterItem, Serializable {
             Map<String, Object> pictureValues = this.toMap();
             Map<String, Object> childUpdates = new HashMap<>();
 
-            if (this.isPublic) {
-                childUpdates.put("/pictures/" + key, pictureValues);
-                childUpdates.put("/user-picture/" + this.uid + "/" + key,
-                        pictureValues);
-            } else {
-                childUpdates.put("/user-picture/" + this.uid + "/" + key,
-                        pictureValues);
-            }
+            childUpdates.put("/pictures/" + key, pictureValues);
 
             database.updateChildren(childUpdates);
             Log.d("URI", "Download uri: " + downloadUri.toString());
@@ -135,7 +135,7 @@ public class Picture implements ClusterItem, Serializable {
     }
 
     public void removeFromFirebase(OnPictureRemovedListener callback) {
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference(isPublic ? "/pictures/" + this.pictureId : "/user-picture/" + this.uid + "/" + this.pictureId);
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference("/pictures/" + this.pictureId);
         StorageReference storage = FirebaseStorage.getInstance().getReferenceFromUrl(this.downloadUrl);
 
         database.removeValue()
@@ -185,6 +185,15 @@ public class Picture implements ClusterItem, Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public boolean isPublicPhoto() {
+        return publicPhoto;
+    }
+
+    public void setPublicPhoto(boolean publicPhoto) {
+        this.publicPhoto = publicPhoto;
+    }
+
 
     public interface OnPictureRemovedListener {
         void onSuccess();

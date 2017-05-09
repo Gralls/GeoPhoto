@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.springer.patryk.geo_photo.R;
 import com.springer.patryk.geo_photo.model.Picture;
 import com.squareup.picasso.Picasso;
@@ -52,6 +53,10 @@ public class PictureDetailsFragment extends Fragment implements PictureDetailsCo
 
         Picture picture = (Picture) getArguments().getSerializable("picture");
         mPresenter.setPicture(picture);
+
+        if (!picture.getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+            removePicture.setVisibility(View.INVISIBLE);
+        }
 
         removePicture.setOnClickListener(removePicture -> Snackbar.make(removePicture, R.string.delete_picture_prove, Snackbar.LENGTH_LONG)
                 .setAction("Delete", snackbar -> mPresenter.removePicture()).show());
