@@ -15,11 +15,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -62,7 +64,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     private Picture clickedClusterItem;
     private SupportMapFragment mapFragment;
     private GoogleMap map;
-    private Marker marker;
 
     private ClusterAdapter adapter;
 
@@ -181,6 +182,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         map.setOnMarkerClickListener(mClusterManager);
     }
 
+
     @Override
     public void setMarkers(List<Picture> pictures) {
         map.clear();
@@ -212,7 +214,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
 
         private View view;
 
-        public CustomInfoWindowAdapter(LayoutInflater inflater) {
+        CustomInfoWindowAdapter(LayoutInflater inflater) {
             view = inflater.inflate(R.layout.marker_info_window, null);
         }
 
@@ -224,20 +226,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         @Override
         public View getInfoContents(Marker marker) {
             final ImageView image = (ImageView) view.findViewById(R.id.user_picture);
-            Picasso.with(getContext()).load(clickedClusterItem.getDownloadUrl()).into(image, new Callback() {
-                @Override
-                public void onSuccess() {
-                    if (marker != null && marker.isInfoWindowShown()) {
-                        marker.hideInfoWindow();
-                        marker.showInfoWindow();
-                    }
-                }
+            Picasso.with(getContext())
+                    .load(clickedClusterItem.getDownloadUrl())
+                    .into(image, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            if (marker != null && marker.isInfoWindowShown()) {
+                                marker.hideInfoWindow();
+                                marker.showInfoWindow();
+                            }
+                        }
 
-                @Override
-                public void onError() {
+                        @Override
+                        public void onError() {
 
-                }
-            });
+                        }
+                    });
 
             map.setOnInfoWindowClickListener(marker1 ->
                     clusterClickedCallback.onClusterClickedListener(clickedClusterItem));
