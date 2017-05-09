@@ -24,12 +24,12 @@ class ClusterAdapter extends RecyclerView.Adapter<ClusterAdapter.ViewHolder> {
 
     private List<Picture> pictureList;
     private Context mContext;
-    private BottomSheetPictureClickedListener mCallback;
+    private MapFragment.ClusterClicked mCallback;
 
-    ClusterAdapter(Context mContext, BottomSheetPictureClickedListener callback) {
+    ClusterAdapter(Context mContext, MapFragment.ClusterClicked clusterClicked) {
         pictureList = new ArrayList<>();
         this.mContext = mContext;
-        mCallback = callback;
+        mCallback = clusterClicked;
     }
 
     @Override
@@ -41,7 +41,7 @@ class ClusterAdapter extends RecyclerView.Adapter<ClusterAdapter.ViewHolder> {
         ViewHolder holder = new ViewHolder(itemView);
 
         itemView.setOnClickListener(item ->
-                mCallback.onPictureClick(
+                mCallback.onClusterClickedListener(
                         pictureList.get(holder.getAdapterPosition())
                 )
         );

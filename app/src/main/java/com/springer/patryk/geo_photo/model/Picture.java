@@ -34,7 +34,7 @@ public class Picture implements ClusterItem, Serializable {
     private String image;
     private String description;
     private String downloadUrl;
-    private boolean isPublic;
+    private boolean publicPhoto;
 
     private byte[] imageStorage;
 
@@ -91,7 +91,7 @@ public class Picture implements ClusterItem, Serializable {
         result.put("latitude", latitude);
         result.put("description", description);
         result.put("downloadUrl", downloadUrl);
-        result.put("getIsPublic", isPublic);
+        result.put("publicPhoto", publicPhoto);
         return result;
     }
 
@@ -109,7 +109,7 @@ public class Picture implements ClusterItem, Serializable {
 
     @SuppressWarnings("VisibleForTests")
     public void saveToFirebase(boolean isPublic) {
-        this.isPublic = isPublic;
+        this.publicPhoto = isPublic;
         UploadTask uploadTask = FirebaseStorage
                 .getInstance()
                 .getReference()
@@ -186,12 +186,12 @@ public class Picture implements ClusterItem, Serializable {
         this.description = description;
     }
 
-    public boolean getIsPublic() {
-        return isPublic;
+    public boolean isPublicPhoto() {
+        return publicPhoto;
     }
 
-    public void setIsPublic(boolean isPublic) {
-        this.isPublic = isPublic;
+    public void setPublicPhoto(boolean publicPhoto) {
+        this.publicPhoto = publicPhoto;
     }
 
 

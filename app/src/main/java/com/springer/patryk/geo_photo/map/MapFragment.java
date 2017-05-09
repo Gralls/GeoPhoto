@@ -15,15 +15,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -46,7 +43,7 @@ import butterknife.ButterKnife;
  * Created by Patryk on 2017-03-22.
  */
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, MapContract.View, ClusterAdapter.BottomSheetPictureClickedListener {
+public class MapFragment extends Fragment implements OnMapReadyCallback, MapContract.View {
 
     @BindView(R.id.take_picture)
     FloatingActionButton takePicture;
@@ -135,7 +132,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         bottomSheetBehavior = BottomSheetBehavior.from(frameLayout);
         bottomSheetBehavior.setHideable(true);
         bottomSheetBehavior.setPeekHeight(0);
-        adapter = new ClusterAdapter(getContext(), this);
+        adapter = new ClusterAdapter(getContext(), clusterClickedCallback);
         bottomPictures.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         bottomPictures.setAdapter(adapter);
     }
@@ -169,6 +166,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         map = googleMap;
         map.setInfoWindowAdapter(new CustomInfoWindowAdapter(LayoutInflater.from(getActivity())));
         mClusterManager = new ClusterManager<>(getContext(), map);
+        mClusterManager.setRenderer(new com.springer.patryk.geo_photo.map.ClusterRenderer(getContext(), map, mClusterManager));
         mClusterManager.setOnClusterItemClickListener(picture -> {
             clickedClusterItem = picture;
             return false;
@@ -194,12 +192,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     @Override
     public void setPresenter(MapContract.Presenter presenter) {
         mPresenter = presenter;
-    }
-
-    @Override
-    public void onPictureClick(Picture picture) {
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(picture.getPosition(), 15));
     }
 
     public interface PictureTakenCallback {

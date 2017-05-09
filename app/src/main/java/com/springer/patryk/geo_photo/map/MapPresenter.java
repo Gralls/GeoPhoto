@@ -35,7 +35,7 @@ public class MapPresenter implements MapContract.Presenter {
                 for (DataSnapshot data : dataSnapshot.child("pictures").getChildren()) {
                     Picture picture = data.getValue(Picture.class);
                     picture.setPictureId(data.getKey());
-                    if (!picture.getIsPublic() && !picture.getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                    if (!picture.isPublicPhoto() && !picture.getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                         continue;
                     }
                     pictures.add(picture);
