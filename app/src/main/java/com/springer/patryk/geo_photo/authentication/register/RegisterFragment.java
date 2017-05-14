@@ -14,11 +14,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.springer.patryk.geo_photo.R;
 import com.springer.patryk.geo_photo.authentication.AuthenticationActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
 
 
 /**
@@ -73,6 +75,33 @@ public class RegisterFragment extends Fragment implements RegisterContract.View 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View registerView = inflater.inflate(R.layout.fragment_registration, null, false);
         ButterKnife.bind(this, registerView);
+
+
+        Observable<Boolean> emailObservable = RxTextView.textChanges(mEmail)
+                .map(inputText -> inputText.toString().matches("^\\S+@\\S+$"))
+                .distinctUntilChanged();
+        emailObservable.subscribe(isValid -> mEmailLayout.setError(isValid ? null : "Invalid email"));
+
+
+        Observable<Boolean> passwordObservable = RxTextView.textChanges(mPassword)
+                .map(inputText -> inputText.length() > 6)
+                .distinctUntilChanged();
+        passwordObservable.subscribe(isValid -> mPasswordLayout.setError(isValid ? null : "Invalid password"));
+
+        Observable<Boolean> confirmPasswordObservable = RxTextView.textChanges(mConfirmPassword)
+                .map(inputText -> inputText.length() > 6)
+                .distinctUntilChanged();
+        confirmPasswordObservable.subscribe(isValid -> mConfirmPasswordLayout.setError(isValid ? null : "Invalid password"));
+
+
+        Observable.combineLatest(
+                emailObservable,
+                passwordObservable,
+                confirmPasswordObservable,
+                (emailValid, passwordValid, confirmPasswordValid) -> emailValid && passwordValid && confirmPasswordValid)
+                .distinctUntilChanged()
+                .subscribe(valid -> mSubmit.setEnabled(valid));
+
 
         mSubmit.setOnClickListener(view -> mPresenter.checkCredentials(mEmail.getText().toString()
                 , mPassword.getText().toString(), mConfirmPassword.getText().toString()));

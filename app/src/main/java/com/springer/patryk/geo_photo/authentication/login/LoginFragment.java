@@ -15,12 +15,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.springer.patryk.geo_photo.MainActivity;
 import com.springer.patryk.geo_photo.R;
 import com.springer.patryk.geo_photo.authentication.AuthenticationActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
 
 
 /**
@@ -73,14 +75,35 @@ public class LoginFragment extends Fragment implements LoginContract.View {
         View loginView = inflater.inflate(R.layout.fragment_authentication, null, false);
         ButterKnife.bind(this, loginView);
 
-        mEmail.setText("patryk.springer@gmail.com");
-        mPassword.setText("Qwerty123");
+//        mEmail.setText("patryk.springer@gmail.com");
+//        mPassword.setText("Qwerty123");
+
+
+        Observable<Boolean> emailObservable = RxTextView.textChanges(mEmail)
+                .map(inputText -> inputText.toString().matches("^\\S+@\\S+$"))
+                .distinctUntilChanged();
+        emailObservable.subscribe(isValid -> mEmailLayout.setError(isValid ? null : "Invalid email"));
+
+
+        Observable<Boolean> passwordObservable = RxTextView.textChanges(mPassword)
+                .map(inputText -> inputText.length() > 6)
+                .distinctUntilChanged();
+        passwordObservable.subscribe(isValid -> mPasswordLayout.setError(isValid ? null : "Invalid password"));
+
+
+        Observable.combineLatest(
+                emailObservable,
+                passwordObservable,
+                (emailValid, passwordValid) -> emailValid && passwordValid)
+                .distinctUntilChanged()
+                .subscribe(valid -> mSubmit.setEnabled(valid));
 
         mSubmit.setOnClickListener(view ->
                 mPresenter.checkCredentials(
                         mEmail.getText().toString(),
                         mPassword.getText().toString()
                 ));
+
 
         mRegisterLink.setOnClickListener(view ->
                 mCallback.showRegisterFragment());
