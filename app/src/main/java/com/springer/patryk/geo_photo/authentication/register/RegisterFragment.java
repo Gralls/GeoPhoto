@@ -77,34 +77,35 @@ public class RegisterFragment extends Fragment implements RegisterContract.View 
         ButterKnife.bind(this, registerView);
 
 
-        Observable<Boolean> emailObservable = RxTextView.textChanges(mEmail)
-                .map(inputText -> inputText.toString().matches("^\\S+@\\S+$"))
+        Observable<Boolean> emailObservable = RxTextView.afterTextChangeEvents(mEmail)
+                .skipInitialValue()
+                .map(inputText -> inputText.editable().toString().matches("^\\S+@\\S+$"))
                 .distinctUntilChanged();
-        emailObservable.subscribe(isValid -> mEmailLayout.setError(isValid ? null : "Invalid email"));
-
-
-        Observable<Boolean> passwordObservable = RxTextView.textChanges(mPassword)
-                .map(inputText -> inputText.length() > 6)
+        Observable<Boolean> confirmPasswordObservable = RxTextView.afterTextChangeEvents(mConfirmPassword)
+                .skipInitialValue()
+                .map(inputText -> inputText.editable().length() > 6)
                 .distinctUntilChanged();
+        Observable<Boolean> passwordObservable = RxTextView.afterTextChangeEvents(mPassword)
+                .skipInitialValue()
+                .map(inputText -> inputText.editable().length() > 6)
+                .distinctUntilChanged();
+
         passwordObservable.subscribe(isValid -> mPasswordLayout.setError(isValid ? null : "Invalid password"));
-
-        Observable<Boolean> confirmPasswordObservable = RxTextView.textChanges(mConfirmPassword)
-                .map(inputText -> inputText.length() > 6)
-                .distinctUntilChanged();
+        emailObservable.subscribe(isValid -> mEmailLayout.setError(isValid ? null : "Invalid email"));
         confirmPasswordObservable.subscribe(isValid -> mConfirmPasswordLayout.setError(isValid ? null : "Invalid password"));
-
-
         Observable.combineLatest(
                 emailObservable,
                 passwordObservable,
                 confirmPasswordObservable,
-                (emailValid, passwordValid, confirmPasswordValid) -> emailValid && passwordValid && confirmPasswordValid)
+                (emailValid, passwordValid, confirmPasswordValid) -> emailValid || passwordValid || confirmPasswordValid)
                 .distinctUntilChanged()
                 .subscribe(valid -> mSubmit.setEnabled(valid));
 
-
-        mSubmit.setOnClickListener(view -> mPresenter.checkCredentials(mEmail.getText().toString()
-                , mPassword.getText().toString(), mConfirmPassword.getText().toString()));
+        mSubmit.setOnClickListener(view -> {
+            mPresenter.checkCredentials(mEmail.getText().toString()
+                    , mPassword.getText().toString(), mConfirmPassword.getText().toString()
+            );
+        });
 
         loginLink.setOnClickListener(view -> mCallback.showLoginFragment());
 

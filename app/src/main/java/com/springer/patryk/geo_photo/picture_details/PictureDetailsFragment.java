@@ -1,5 +1,6 @@
 package com.springer.patryk.geo_photo.picture_details;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -34,7 +35,7 @@ public class PictureDetailsFragment extends Fragment implements PictureDetailsCo
     TextView pictureDescription;
 
     private PictureDetailsContract.Presenter mPresenter;
-
+    private Context mContext;
     public static PictureDetailsFragment newInstance() {
         return new PictureDetailsFragment();
     }
@@ -43,6 +44,7 @@ public class PictureDetailsFragment extends Fragment implements PictureDetailsCo
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPresenter = new PictureDetailsPresenter(this);
+        mContext = getContext();
     }
 
     @Nullable
@@ -59,7 +61,10 @@ public class PictureDetailsFragment extends Fragment implements PictureDetailsCo
         }
 
         removePicture.setOnClickListener(removePicture -> Snackbar.make(removePicture, R.string.delete_picture_prove, Snackbar.LENGTH_LONG)
-                .setAction("Delete", snackbar -> mPresenter.removePicture()).show());
+                .setAction("Delete", snackbar -> {
+                    mPresenter.removePicture();
+                    getActivity().onBackPressed();
+                }).show());
 
         return view;
     }
@@ -93,12 +98,11 @@ public class PictureDetailsFragment extends Fragment implements PictureDetailsCo
 
     @Override
     public void onPictureDeleteSuccess() {
-        Toast.makeText(getContext(), R.string.picture_removed_info, Toast.LENGTH_SHORT).show();
-        getActivity().onBackPressed();
+        Toast.makeText(mContext, R.string.picture_removed_info, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onPictureDeleteFailure() {
-        Toast.makeText(getContext(), R.string.picture_removed_error, Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext, R.string.picture_removed_error, Toast.LENGTH_SHORT).show();
     }
 }

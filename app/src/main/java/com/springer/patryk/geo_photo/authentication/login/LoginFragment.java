@@ -79,14 +79,16 @@ public class LoginFragment extends Fragment implements LoginContract.View {
 //        mPassword.setText("Qwerty123");
 
 
-        Observable<Boolean> emailObservable = RxTextView.textChanges(mEmail)
-                .map(inputText -> inputText.toString().matches("^\\S+@\\S+$"))
+        Observable<Boolean> emailObservable = RxTextView.afterTextChangeEvents(mEmail)
+                .skipInitialValue()
+                .map(inputText -> inputText.editable().toString().matches("^\\S+@\\S+$"))
                 .distinctUntilChanged();
         emailObservable.subscribe(isValid -> mEmailLayout.setError(isValid ? null : "Invalid email"));
 
 
-        Observable<Boolean> passwordObservable = RxTextView.textChanges(mPassword)
-                .map(inputText -> inputText.length() > 6)
+        Observable<Boolean> passwordObservable = RxTextView.afterTextChangeEvents(mPassword)
+                .skipInitialValue()
+                .map(inputText -> inputText.editable().length() > 6)
                 .distinctUntilChanged();
         passwordObservable.subscribe(isValid -> mPasswordLayout.setError(isValid ? null : "Invalid password"));
 
@@ -94,7 +96,7 @@ public class LoginFragment extends Fragment implements LoginContract.View {
         Observable.combineLatest(
                 emailObservable,
                 passwordObservable,
-                (emailValid, passwordValid) -> emailValid && passwordValid)
+                (emailValid, passwordValid) -> emailValid || passwordValid)
                 .distinctUntilChanged()
                 .subscribe(valid -> mSubmit.setEnabled(valid));
 

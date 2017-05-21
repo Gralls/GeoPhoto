@@ -29,6 +29,7 @@ public class LoginPresenter implements LoginContract.Presenter {
             if (user != null)
                 mAuthenticationView.showMainPage();
         };
+
     }
 
     @Override
@@ -43,7 +44,6 @@ public class LoginPresenter implements LoginContract.Presenter {
 
     @Override
     public void checkCredentials(String email, String password) {
-        //TODO add watchers to editText
         boolean validation = true;
         if (email.isEmpty()) {
             validation = false;

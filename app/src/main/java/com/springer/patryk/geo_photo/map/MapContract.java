@@ -19,7 +19,9 @@ interface MapContract {
     }
 
     interface Presenter extends BasePresenter {
+        List<Picture> getPictures();
 
+        void setPictures(List<Picture> pictures);
     }
 
 }

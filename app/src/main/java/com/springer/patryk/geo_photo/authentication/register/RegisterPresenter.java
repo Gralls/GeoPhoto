@@ -49,7 +49,6 @@ public class RegisterPresenter implements RegisterContract.Presenter {
 
     @Override
     public void checkCredentials(String email, String password, String confirmPassword) {
-        //TODO add watchers to editText
         boolean validation = true;
         if (email.isEmpty()) {
             validation = false;

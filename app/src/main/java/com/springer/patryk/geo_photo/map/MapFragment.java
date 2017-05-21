@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
@@ -89,7 +90,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPresenter = new MapPresenter(this);
+        if (savedInstanceState == null)
+            mPresenter = new MapPresenter(this);
     }
 
     @Nullable
@@ -116,16 +118,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         prepareBottomSheet();
+        if (savedInstanceState == null) {
+            takePicture.setOnClickListener(view1 -> {
+                Intent takePicture1 = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                File path = new File(getActivity().getFilesDir(), "pictures");
+                if (!path.exists()) path.mkdirs();
+                File file = new File(path, "image.jpg");
+                takePicture1.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(getActivity(), getActivity().getApplicationContext().getPackageName() + ".provider", file));
+                startActivityForResult(takePicture1, CAPTURE_IMAGE_ACTIVITY);
+            });
+            mapFragment.getMapAsync(this);
 
-        takePicture.setOnClickListener(view1 -> {
-            Intent takePicture1 = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            File path = new File(getActivity().getFilesDir(), "pictures");
-            if (!path.exists()) path.mkdirs();
-            File file = new File(path, "image.jpg");
-            takePicture1.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(getActivity(), getActivity().getApplicationContext().getPackageName() + ".provider", file));
-            startActivityForResult(takePicture1, CAPTURE_IMAGE_ACTIVITY);
-        });
-        mapFragment.getMapAsync(this);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("Pictures", (ArrayList<? extends Parcelable>) mPresenter.getPictures());
+        super.onSaveInstanceState(outState);
+
     }
 
     private void prepareBottomSheet() {

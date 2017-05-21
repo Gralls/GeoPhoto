@@ -31,7 +31,6 @@ public class Picture implements ClusterItem, Serializable {
     private String uid;
     private Double longtitude;
     private Double latitude;
-    private String image;
     private String description;
     private String downloadUrl;
     private boolean publicPhoto;
@@ -39,6 +38,13 @@ public class Picture implements ClusterItem, Serializable {
     private byte[] imageStorage;
 
     public Picture() {
+    }
+
+    public Picture(String uid, Double longitude, Double latitude, Bitmap image) {
+        this.uid = uid;
+        this.longtitude = longitude;
+        this.latitude = latitude;
+        convertBitmapToBytes(image);
     }
 
     public String getUid() {
@@ -69,21 +75,6 @@ public class Picture implements ClusterItem, Serializable {
         this.latitude = latitude;
     }
 
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public Picture(String uid, Double longtitude, Double latitude, Bitmap image) {
-        this.uid = uid;
-        this.longtitude = longtitude;
-        this.latitude = latitude;
-        this.image = convertToBase64(image);
-    }
-
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
         result.put("uid", uid);
@@ -95,11 +86,10 @@ public class Picture implements ClusterItem, Serializable {
         return result;
     }
 
-    public String convertToBase64(Bitmap image) {
+    public void convertBitmapToBytes(Bitmap image) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         imageStorage = stream.toByteArray();
-        return Base64.encodeToString(imageStorage, Base64.NO_WRAP);
     }
 
     public static Bitmap convertBase64ToBitmap(String base64) {
@@ -193,7 +183,6 @@ public class Picture implements ClusterItem, Serializable {
     public void setPublicPhoto(boolean publicPhoto) {
         this.publicPhoto = publicPhoto;
     }
-
 
     public interface OnPictureRemovedListener {
         void onSuccess();

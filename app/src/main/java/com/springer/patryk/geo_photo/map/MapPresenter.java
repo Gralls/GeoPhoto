@@ -26,11 +26,10 @@ public class MapPresenter implements MapContract.Presenter {
     public MapPresenter(MapContract.View mapView) {
         mView = mapView;
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
+        mDatabase.keepSynced(true);
         valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //TODO do something clever with separate private and public pictures
                 pictures = new ArrayList<>();
                 for (DataSnapshot data : dataSnapshot.child("pictures").getChildren()) {
                     Picture picture = data.getValue(Picture.class);
@@ -60,4 +59,13 @@ public class MapPresenter implements MapContract.Presenter {
         mDatabase.removeEventListener(valueEventListener);
     }
 
+    @Override
+    public List<Picture> getPictures() {
+        return pictures;
+    }
+
+    @Override
+    public void setPictures(List<Picture> pictures) {
+        this.pictures = pictures;
+    }
 }

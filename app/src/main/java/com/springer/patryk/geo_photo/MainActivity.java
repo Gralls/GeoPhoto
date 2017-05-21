@@ -1,6 +1,7 @@
 package com.springer.patryk.geo_photo;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -18,10 +19,11 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.springer.patryk.geo_photo.map.MapFragment;
 import com.springer.patryk.geo_photo.model.Picture;
-import com.springer.patryk.geo_photo.picture.SendPictureFragment;
 import com.springer.patryk.geo_photo.picture_details.PictureDetailsFragment;
+import com.springer.patryk.geo_photo.send_picture.SendPictureFragment;
 import com.springer.patryk.geo_photo.utils.ActivityUtils;
 
 import butterknife.BindView;
@@ -48,21 +50,25 @@ public class MainActivity extends AppCompatActivity implements MapFragment.Pictu
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.container);
-
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         if (mapFragment == null) {
             mapFragment = MapFragment.newInstance();
             ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), mapFragment, R.id.container);
         }
 
-        String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.CAMERA};
+        checkPermissions(this);
 
-        if (!hasPermissions(this, PERMISSIONS)) {
-            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL_REQUEST_CODEON);
-        }
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         setupDrawer();
+    }
+
+    public static void checkPermissions(Activity activity) {
+        String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.CAMERA};
+        if (!hasPermissions(activity, PERMISSIONS)) {
+            ActivityCompat.requestPermissions(activity, PERMISSIONS, PERMISSION_ALL_REQUEST_CODEON);
+        }
     }
 
     public static boolean hasPermissions(Context context, String... permissions) {
