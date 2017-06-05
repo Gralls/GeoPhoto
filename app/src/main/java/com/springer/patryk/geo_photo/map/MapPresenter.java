@@ -44,7 +44,7 @@ public class MapPresenter implements MapContract.Presenter {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+//nop
             }
         };
     }

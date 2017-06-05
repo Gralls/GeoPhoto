@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.Pictu
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.container);
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         if (mapFragment == null) {
             mapFragment = MapFragment.newInstance();
             ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), mapFragment, R.id.container);

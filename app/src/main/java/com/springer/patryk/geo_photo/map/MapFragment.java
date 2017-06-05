@@ -90,8 +90,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState == null)
-            mPresenter = new MapPresenter(this);
     }
 
     @Nullable
@@ -101,7 +99,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         View mapView = inflater.inflate(R.layout.fragment_map, null, false);
         ButterKnife.bind(this, mapView);
         FragmentManager fm = getChildFragmentManager();
-
+        if(mPresenter==null){
+            mPresenter = new MapPresenter(this);
+        }
         if (savedInstanceState == null) {
             mapFragment = SupportMapFragment.newInstance();
             FragmentTransaction ft = fm.beginTransaction();
