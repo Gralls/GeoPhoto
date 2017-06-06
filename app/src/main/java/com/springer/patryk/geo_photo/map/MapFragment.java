@@ -3,10 +3,12 @@ package com.springer.patryk.geo_photo.map;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
@@ -22,10 +24,19 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterManager;
 import com.springer.patryk.geo_photo.MainActivity;
 import com.springer.patryk.geo_photo.R;
@@ -44,7 +55,9 @@ import butterknife.ButterKnife;
  * Created by Patryk on 2017-03-22.
  */
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, MapContract.View {
+public class MapFragment extends Fragment implements OnMapReadyCallback, MapContract.View, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
     @BindView(R.id.take_picture)
     FloatingActionButton takePicture;
@@ -62,9 +75,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     private Picture clickedClusterItem;
     private SupportMapFragment mapFragment;
     private GoogleMap map;
-
+    private LocationRequest mLocationRequest;
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
     private ClusterAdapter adapter;
-
+    private Marker mCurrLocationMarker;
 
     private BottomSheetBehavior bottomSheetBehavior;
 
@@ -99,7 +114,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         View mapView = inflater.inflate(R.layout.fragment_map, null, false);
         ButterKnife.bind(this, mapView);
         FragmentManager fm = getChildFragmentManager();
-        if(mPresenter==null){
+        if (mPresenter == null) {
             mPresenter = new MapPresenter(this);
         }
         if (savedInstanceState == null) {
@@ -158,6 +173,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     public void onPause() {
         super.onPause();
         mPresenter.unsubscribe();
+        mGoogleApiClient.disconnect();
     }
 
 
@@ -176,6 +192,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         map.setInfoWindowAdapter(new CustomInfoWindowAdapter(LayoutInflater.from(getActivity())));
+        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+        map.setMyLocationEnabled(true);
         mClusterManager = new ClusterManager<>(getContext(), map);
         mClusterManager.setRenderer(new com.springer.patryk.geo_photo.map.ClusterRenderer(getContext(), map, mClusterManager));
         mClusterManager.setOnClusterItemClickListener(picture -> {
@@ -203,6 +226,35 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     @Override
     public void setPresenter(MapContract.Presenter presenter) {
         mPresenter = presenter;
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(1000);
+        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mLastLocation = location;
+        if (mCurrLocationMarker != null) {
+            mCurrLocationMarker.remove();
+        }
     }
 
     public interface PictureTakenCallback {
