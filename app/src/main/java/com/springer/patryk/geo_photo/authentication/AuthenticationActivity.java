@@ -3,7 +3,6 @@ package com.springer.patryk.geo_photo.authentication;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.google.firebase.database.FirebaseDatabase;
 import com.springer.patryk.geo_photo.R;
 import com.springer.patryk.geo_photo.authentication.login.LoginFragment;
 import com.springer.patryk.geo_photo.authentication.register.RegisterFragment;
@@ -17,7 +16,6 @@ public class AuthenticationActivity extends AppCompatActivity implements LoginFr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentication);
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         mLoginFragment = (LoginFragment) getSupportFragmentManager().findFragmentById(R.id.container);
 

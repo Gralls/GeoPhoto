@@ -14,4 +14,7 @@
     <string name="logout_confirm">You want to logout?</string>
     <string name="logout">Logout</string>
     <string name="profile_settings">Profile</string>
+    <string name="location_permission_denied">Permission denied</string>
+    <string name="permission_required_toast">Permission requierd</string>
+    <string name="permission_rationale_location">permission_rationale_location</string>
 </resources>

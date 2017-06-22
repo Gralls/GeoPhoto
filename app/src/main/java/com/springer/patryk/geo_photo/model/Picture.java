@@ -1,18 +1,16 @@
 package com.springer.patryk.geo_photo.model;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.util.Base64;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.maps.android.clustering.ClusterItem;
+import com.springer.patryk.geo_photo.utils.FirebaseUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
@@ -92,11 +90,6 @@ public class Picture implements ClusterItem, Serializable {
         imageStorage = stream.toByteArray();
     }
 
-    public static Bitmap convertBase64ToBitmap(String base64) {
-        byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
-        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-    }
-
     @SuppressWarnings("VisibleForTests")
     public void saveToFirebase(boolean isPublic) {
         this.publicPhoto = isPublic;
@@ -111,7 +104,7 @@ public class Picture implements ClusterItem, Serializable {
         uploadTask.addOnSuccessListener(taskSnapshot -> {
             Uri downloadUri = taskSnapshot.getDownloadUrl();
             downloadUrl = downloadUri.toString();
-            DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+            DatabaseReference database = FirebaseUtils.getDatabaseInstace().getReference();
             String key = database.child("picture").push().getKey();
 
             Map<String, Object> pictureValues = this.toMap();
@@ -126,7 +119,7 @@ public class Picture implements ClusterItem, Serializable {
     }
 
     public void removeFromFirebase(OnPictureRemovedListener callback) {
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference("/pictures/" + this.pictureId);
+        DatabaseReference database = FirebaseUtils.getDatabaseInstace().getReference("/pictures/" + this.pictureId);
         StorageReference storage = FirebaseStorage.getInstance().getReferenceFromUrl(this.downloadUrl);
 
         database.removeValue()

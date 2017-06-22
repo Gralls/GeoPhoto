@@ -4,9 +4,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.springer.patryk.geo_photo.model.Picture;
+import com.springer.patryk.geo_photo.utils.FirebaseUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ public class MapPresenter implements MapContract.Presenter {
 
     public MapPresenter(MapContract.View mapView) {
         mView = mapView;
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseUtils.getDatabaseInstace().getReference();
         mDatabase.keepSynced(true);
         valueEventListener = new ValueEventListener() {
             @Override

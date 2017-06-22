@@ -1,8 +1,10 @@
 package com.springer.patryk.geo_photo.map;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,15 +31,19 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
+import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.springer.patryk.geo_photo.MainActivity;
 import com.springer.patryk.geo_photo.R;
 import com.springer.patryk.geo_photo.model.Picture;
+import com.springer.patryk.geo_photo.utils.PermissionUtils;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -68,7 +75,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     private static final int CAPTURE_IMAGE_ACTIVITY = 1;
     private static final String PICTURE_DIR = "pictures";
     private static final String PICTURE_FILENAME = "image.jpg";
-
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
     private MapContract.Presenter mPresenter;
     private PictureTakenCallback mCallback;
     private ClusterClicked clusterClickedCallback;
@@ -107,6 +114,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         super.onCreate(savedInstanceState);
         mPresenter = new MapPresenter(this);
         prepareMapFragment(savedInstanceState == null);
+        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
     private void prepareMapFragment(boolean createNewInstance) {
@@ -134,6 +146,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
                 .observeOn(AndroidSchedulers.mainThread())
                 .debounce(100, TimeUnit.MILLISECONDS);
         if (map == null) {
+
             mapFragment.getMapAsync(this);
         }
         return mapView;
@@ -190,13 +203,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         map.setInfoWindowAdapter(new CustomInfoWindowAdapter(LayoutInflater.from(getActivity())));
-        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+
         mGoogleApiClient.connect();
-        map.setMyLocationEnabled(true);
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            map.setMyLocationEnabled(true);
+        } else {
+            PermissionUtils.requestPermission(getActivity(), LOCATION_PERMISSION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION, false);
+        }
         mClusterManager = new ClusterManager<>(getContext(), map);
         mClusterManager.setRenderer(new com.springer.patryk.geo_photo.map.ClusterRenderer(getContext(), map, mClusterManager));
         mClusterManager.setOnClusterItemClickListener(picture -> {
@@ -206,10 +219,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         mClusterManager.setOnClusterClickListener(cluster -> {
             adapter.setPictureList(new ArrayList<>(cluster.getItems()));
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for (ClusterItem item : cluster.getItems()) {
+                builder.include(item.getPosition());
+            }
+            map.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
             return true;
         });
         map.setOnCameraIdleListener(mClusterManager);
         map.setOnMarkerClickListener(mClusterManager);
+        map.setOnMapClickListener(latLng -> bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN));
     }
 
 
@@ -232,8 +251,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         mLocationRequest.setInterval(1000);
         mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        } else {
+            PermissionUtils.requestPermission(getActivity(), LOCATION_PERMISSION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION, false);
+        }
 
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
 
     }
 
