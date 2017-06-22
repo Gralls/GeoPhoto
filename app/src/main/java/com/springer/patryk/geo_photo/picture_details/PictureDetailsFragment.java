@@ -13,12 +13,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.jakewharton.rxbinding2.view.RxView;
 import com.springer.patryk.geo_photo.R;
 import com.springer.patryk.geo_photo.model.Picture;
 import com.squareup.picasso.Picasso;
 
+import java.util.concurrent.TimeUnit;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by Patryk on 2017-04-08.
@@ -34,8 +39,10 @@ public class PictureDetailsFragment extends Fragment implements PictureDetailsCo
     @BindView(R.id.picture_label)
     TextView pictureDescription;
 
+    private Observable removePictureObservable;
     private PictureDetailsContract.Presenter mPresenter;
     private Context mContext;
+
     public static PictureDetailsFragment newInstance() {
         return new PictureDetailsFragment();
     }
@@ -59,12 +66,9 @@ public class PictureDetailsFragment extends Fragment implements PictureDetailsCo
         if (!picture.getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
             removePicture.setVisibility(View.INVISIBLE);
         }
-
-        removePicture.setOnClickListener(removePicture -> Snackbar.make(removePicture, R.string.delete_picture_prove, Snackbar.LENGTH_LONG)
-                .setAction("Delete", snackbar -> {
-                    mPresenter.removePicture();
-                    getActivity().onBackPressed();
-                }).show());
+        removePictureObservable = RxView.clicks(removePicture)
+                .observeOn(AndroidSchedulers.mainThread())
+                .debounce(100, TimeUnit.MILLISECONDS);
 
         return view;
     }
@@ -73,12 +77,19 @@ public class PictureDetailsFragment extends Fragment implements PictureDetailsCo
     public void onResume() {
         super.onResume();
         mPresenter.subscribe();
+        removePictureObservable.subscribe(onNext ->
+                Snackbar.make(removePicture, R.string.delete_picture_prove, Snackbar.LENGTH_LONG)
+                        .setAction("Delete", snackbar -> {
+                            mPresenter.removePicture();
+                            getActivity().onBackPressed();
+                        }).show());
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mPresenter.unsubscribe();
+        removePictureObservable.unsubscribeOn(AndroidSchedulers.mainThread());
     }
 
     @Override

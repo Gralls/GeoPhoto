@@ -26,8 +26,9 @@ public class LoginPresenter implements LoginContract.Presenter {
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = firebaseAuth -> {
             FirebaseUser user = firebaseAuth.getCurrentUser();
-            if (user != null)
+            if (user != null) {
                 mAuthenticationView.showMainPage();
+            }
         };
 
     }

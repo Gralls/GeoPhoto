@@ -100,6 +100,7 @@ public class Picture implements ClusterItem, Serializable {
     @SuppressWarnings("VisibleForTests")
     public void saveToFirebase(boolean isPublic) {
         this.publicPhoto = isPublic;
+
         UploadTask uploadTask = FirebaseStorage
                 .getInstance()
                 .getReference()

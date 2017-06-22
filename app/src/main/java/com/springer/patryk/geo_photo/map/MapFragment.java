@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -29,15 +28,12 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterManager;
+import com.jakewharton.rxbinding2.view.RxView;
 import com.springer.patryk.geo_photo.MainActivity;
 import com.springer.patryk.geo_photo.R;
 import com.springer.patryk.geo_photo.model.Picture;
@@ -47,9 +43,12 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by Patryk on 2017-03-22.
@@ -67,6 +66,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     RecyclerView bottomPictures;
 
     private static final int CAPTURE_IMAGE_ACTIVITY = 1;
+    private static final String PICTURE_DIR = "pictures";
+    private static final String PICTURE_FILENAME = "image.jpg";
 
     private MapContract.Presenter mPresenter;
     private PictureTakenCallback mCallback;
@@ -79,8 +80,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private ClusterAdapter adapter;
-    private Marker mCurrLocationMarker;
-
+    private Observable takePictureObservable;
     private BottomSheetBehavior bottomSheetBehavior;
 
     public MapFragment() {
@@ -105,6 +105,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPresenter = new MapPresenter(this);
+        prepareMapFragment(savedInstanceState == null);
+    }
+
+    private void prepareMapFragment(boolean createNewInstance) {
+        FragmentManager fm = getChildFragmentManager();
+        if (createNewInstance) {
+            mapFragment = SupportMapFragment.newInstance();
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.add(R.id.mapContainer, mapFragment, "mapFragment");
+            ft.commit();
+        } else {
+            mapFragment = (SupportMapFragment) fm.findFragmentByTag("mapFragment");
+        }
     }
 
     @Nullable
@@ -113,45 +127,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
 
         View mapView = inflater.inflate(R.layout.fragment_map, null, false);
         ButterKnife.bind(this, mapView);
-        FragmentManager fm = getChildFragmentManager();
-        if (mPresenter == null) {
-            mPresenter = new MapPresenter(this);
-        }
-        if (savedInstanceState == null) {
-            mapFragment = SupportMapFragment.newInstance();
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.add(R.id.mapContainer, mapFragment, "mapFragment");
-            ft.commit();
-        } else {
-            mapFragment = (SupportMapFragment) fm.findFragmentByTag("mapFragment");
-        }
 
-        return mapView;
-    }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
         prepareBottomSheet();
-        if (savedInstanceState == null) {
-            takePicture.setOnClickListener(view1 -> {
-                Intent takePicture1 = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                File path = new File(getActivity().getFilesDir(), "pictures");
-                if (!path.exists()) path.mkdirs();
-                File file = new File(path, "image.jpg");
-                takePicture1.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(getActivity(), getActivity().getApplicationContext().getPackageName() + ".provider", file));
-                startActivityForResult(takePicture1, CAPTURE_IMAGE_ACTIVITY);
-            });
+        takePictureObservable = RxView.clicks(takePicture)
+                .observeOn(AndroidSchedulers.mainThread())
+                .debounce(100, TimeUnit.MILLISECONDS);
+        if (map == null) {
             mapFragment.getMapAsync(this);
-
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList("Pictures", (ArrayList<? extends Parcelable>) mPresenter.getPictures());
-        super.onSaveInstanceState(outState);
-
+        return mapView;
     }
 
     private void prepareBottomSheet() {
@@ -167,6 +152,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     public void onResume() {
         super.onResume();
         mPresenter.subscribe();
+        takePictureObservable.subscribe(onClick -> {
+            startCameraActivity();
+        });
+    }
+
+    private void startCameraActivity() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File path = new File(getActivity().getFilesDir(), PICTURE_DIR);
+        if (!path.exists()) path.mkdirs();
+        File file = new File(path, PICTURE_FILENAME);
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(getActivity(), getActivity().getApplicationContext().getPackageName() + ".provider", file));
+        startActivityForResult(takePictureIntent, CAPTURE_IMAGE_ACTIVITY);
     }
 
     @Override
@@ -174,15 +171,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         super.onPause();
         mPresenter.unsubscribe();
         mGoogleApiClient.disconnect();
+        takePictureObservable.unsubscribeOn(AndroidSchedulers.mainThread());
     }
 
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAPTURE_IMAGE_ACTIVITY && resultCode == Activity.RESULT_OK) {
-            File path = new File(getActivity().getFilesDir(), "pictures");
+            File path = new File(getActivity().getFilesDir(), PICTURE_DIR);
             if (!path.exists()) path.mkdirs();
-            File file = new File(path, "image.jpg");
+            File file = new File(path, PICTURE_FILENAME);
             mCallback.onPictureTaken(Uri.fromFile(file));
         }
     }
@@ -252,9 +250,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
-        }
+
     }
 
     public interface PictureTakenCallback {
