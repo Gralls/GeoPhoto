@@ -2,7 +2,6 @@ package com.springer.patryk.geo_photo.model;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DatabaseReference;
@@ -18,6 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import io.reactivex.Observable;
+
 /**
  * Created by Patryk on 2017-03-26.
  */
@@ -32,7 +33,7 @@ public class Picture implements ClusterItem, Serializable {
     private String description;
     private String downloadUrl;
     private boolean publicPhoto;
-
+    private DatabaseReference mDatabase;
     private byte[] imageStorage;
 
     public Picture() {
@@ -42,6 +43,7 @@ public class Picture implements ClusterItem, Serializable {
         this.uid = uid;
         this.longtitude = longitude;
         this.latitude = latitude;
+        mDatabase = FirebaseUtils.getDatabaseInstace().getReference();
         convertBitmapToBytes(image);
     }
 
@@ -91,30 +93,32 @@ public class Picture implements ClusterItem, Serializable {
     }
 
     @SuppressWarnings("VisibleForTests")
-    public void saveToFirebase(boolean isPublic) {
+    public Observable<Picture> saveToFirebase(boolean isPublic) {
         this.publicPhoto = isPublic;
-
         UploadTask uploadTask = FirebaseStorage
                 .getInstance()
                 .getReference()
                 .child(uid)
                 .child(UUID.randomUUID().toString() + ".jpg")
                 .putBytes(imageStorage);
+        return Observable
+                .create(subscriber -> {
+                    uploadTask.addOnSuccessListener(taskSnapshot -> {
+                        Uri downloadUri = taskSnapshot.getDownloadUrl();
+                        downloadUrl = downloadUri.toString();
+                        String key = mDatabase.child("picture").push().getKey();
 
-        uploadTask.addOnSuccessListener(taskSnapshot -> {
-            Uri downloadUri = taskSnapshot.getDownloadUrl();
-            downloadUrl = downloadUri.toString();
-            DatabaseReference database = FirebaseUtils.getDatabaseInstace().getReference();
-            String key = database.child("picture").push().getKey();
+                        Map<String, Object> pictureValues = this.toMap();
+                        Map<String, Object> childUpdates = new HashMap<>();
 
-            Map<String, Object> pictureValues = this.toMap();
-            Map<String, Object> childUpdates = new HashMap<>();
+                        childUpdates.put("/pictures/" + key, pictureValues);
 
-            childUpdates.put("/pictures/" + key, pictureValues);
+                        mDatabase.updateChildren(childUpdates);
+                        subscriber.onNext(this);
+                    });
+                    uploadTask.addOnFailureListener(error -> subscriber.onError(error.getCause()));
 
-            database.updateChildren(childUpdates);
-            Log.d("URI", "Download uri: " + downloadUri.toString());
-        }).addOnFailureListener(e -> Log.d("URI", "Upload failed"));
+                });
 
     }
 

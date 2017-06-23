@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -11,35 +11,41 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
 
-    <View
-        android:id="@+id/space"
-        android:layout_width="10dp"
-        android:layout_height="0dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="16dp" />
+    <ViewAnimator
+        android:id="@+id/send_picture_animator"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/send_picture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerInParent="true"
-        android:layout_marginBottom="16dp"
-        android:layout_toLeftOf="@id/space"
-        android:src="@drawable/ic_check"
-        app:backgroundTint="@color/md_green_700" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:gravity="center">
 
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/send_picture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/remove_picture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="16dp"
-        android:layout_toRightOf="@id/space"
-        android:src="@drawable/ic_delete"
-        app:backgroundTint="@color/md_red_700" />
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_check"
+                app:backgroundTint="@color/md_green_700" />
 
 
-</RelativeLayout>
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/remove_picture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_delete"
+                app:backgroundTint="@color/md_red_700" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center" />
+    </ViewAnimator>
+
+
+</FrameLayout>

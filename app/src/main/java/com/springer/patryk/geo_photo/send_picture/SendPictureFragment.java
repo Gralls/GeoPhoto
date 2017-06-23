@@ -19,6 +19,8 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
+import android.widget.ViewAnimator;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.springer.patryk.geo_photo.R;
@@ -41,6 +43,8 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
     FloatingActionButton sendPicture;
     @BindView(R.id.remove_picture)
     FloatingActionButton removePicture;
+    @BindView(R.id.send_picture_animator)
+    ViewAnimator viewAnimator;
 
     public static SendPictureFragment newInstance() {
         return new SendPictureFragment();
@@ -50,7 +54,6 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPresenter = new SendPicturePresenter(this);
-
     }
 
     @Nullable
@@ -58,13 +61,15 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View mapView = inflater.inflate(R.layout.fragment_send_picture, null, false);
         ButterKnife.bind(this, mapView);
+        viewAnimator.setDisplayedChild(0);
+
         mPresenter.convertUriToBitmap(Uri.parse(getArguments().getString("fileUri")));
         sendPicture.setOnClickListener(view -> {
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
             View dialogView = inflater.inflate(R.layout.dialog_picture_options, null);
             dialogBuilder.setView(dialogView)
                     .setPositiveButton(R.string.send_picture, (dialogInterface, i) -> {
-
+                        viewAnimator.setDisplayedChild(1);
                         CheckBox isPublic = (CheckBox) dialogView.findViewById(R.id.picture_status);
                         EditText pictureDescription = (EditText) dialogView.findViewById(R.id.picture_description);
 
@@ -76,7 +81,7 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
                         mPresenter.savePicture(FirebaseAuth.getInstance().getCurrentUser().getUid(),
                                 location, isPublic.isChecked(), pictureDescription.getText().toString());
 
-                        getActivity().onBackPressed();
+                        //getActivity().onBackPressed();
                     })
                     .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
 
@@ -111,5 +116,17 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
     @Override
     public void setImageResource(Bitmap bmp) {
         pictureView.setImageBitmap(bmp);
+    }
+
+    @Override
+    public void savePictureSuccessCallback() {
+        Toast.makeText(getContext(), "Picture saved!", Toast.LENGTH_SHORT).show();
+        getActivity().onBackPressed();
+    }
+
+    @Override
+    public void savePictureErrorCallback() {
+        Toast.makeText(getContext(), "Something went wrong. Try again.", Toast.LENGTH_LONG).show();
+        viewAnimator.setDisplayedChild(0);
     }
 }

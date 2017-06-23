@@ -17,6 +17,9 @@ interface SendPictureContract {
 
         void setImageResource(Bitmap bmp);
 
+        void savePictureSuccessCallback();
+
+        void savePictureErrorCallback();
     }
 
     interface Presenter extends BasePresenter {

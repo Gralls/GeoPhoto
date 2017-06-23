@@ -4,10 +4,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
+import android.util.Log;
 
 import com.springer.patryk.geo_photo.model.Picture;
 
 import java.io.File;
+
+import io.reactivex.disposables.Disposable;
 
 /**
  * Created by Patryk on 2017-03-22.
@@ -17,6 +20,7 @@ public class SendPicturePresenter implements SendPictureContract.Presenter {
 
     private SendPictureContract.View mView;
     private Bitmap imageResource;
+    private Disposable savePictureDisposable;
 
     public SendPicturePresenter(SendPictureContract.View mapView) {
         mView = mapView;
@@ -29,14 +33,21 @@ public class SendPicturePresenter implements SendPictureContract.Presenter {
 
     @Override
     public void unsubscribe() {
-
+        if (!savePictureDisposable.isDisposed()) {
+            savePictureDisposable.dispose();
+        }
     }
 
     @Override
     public void savePicture(String userId, Location location, boolean isPublic, String pictureDescription) {
         Picture picture = new Picture(userId, location.getLongitude(), location.getLatitude(), imageResource);
         picture.setDescription(pictureDescription);
-        picture.saveToFirebase(isPublic);
+        savePictureDisposable = picture.saveToFirebase(isPublic).subscribe(onNext -> {
+            mView.savePictureSuccessCallback();
+        }, onError -> {
+            mView.savePictureErrorCallback();
+            Log.e("SaveToFirebase", onError.getLocalizedMessage());
+        });
     }
 
     @Override
