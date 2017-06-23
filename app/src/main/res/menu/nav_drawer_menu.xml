@@ -2,12 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_map"
+            android:icon="@drawable/ic_map"
+            android:title="@string/map"
+            android:checked="true" />
+        <item
             android:id="@+id/nav_account"
             android:icon="@drawable/ic_person"
-            android:title="@string/profile_settings" />
+            android:title="@string/profile_settings"
+            android:checked="false" />
         <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/ic_exit"
-            android:title="@string/logout" />
+            android:title="@string/logout"
+            android:checked="false" />
     </group>
 </menu>

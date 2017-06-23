@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -25,6 +26,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.springer.patryk.geo_photo.map.MapFragment;
 import com.springer.patryk.geo_photo.model.Picture;
 import com.springer.patryk.geo_photo.picture_details.PictureDetailsFragment;
+import com.springer.patryk.geo_photo.profile_settings.ProfileSettingsFragment;
 import com.springer.patryk.geo_photo.send_picture.SendPictureFragment;
 import com.springer.patryk.geo_photo.utils.ActivityUtils;
 
@@ -91,18 +93,40 @@ public class MainActivity extends AppCompatActivity implements MapFragment.Pictu
     private void setupDrawer() {
 
         mNavigationView.setNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.nav_logout:
-                    FirebaseAuth.getInstance().signOut();
-                    finish();
-                    break;
-                case R.id.nav_account:
-                    //TODO Open profile settings screen
-                    break;
-                default:
-                    break;
+            if (!item.isChecked()) {
+                switch (item.getItemId()) {
+                    case R.id.nav_map:
+                        ActivityUtils.replaceFragment(getSupportFragmentManager(),
+                                MapFragment.newInstance(),
+                                R.id.container,
+                                false,
+                                android.R.anim.fade_in,
+                                android.R.anim.fade_out
+                        );
+                        break;
+                    case R.id.nav_logout:
+                        Snackbar.make(findViewById(R.id.take_picture), R.string.logout_confirm, Snackbar.LENGTH_LONG)
+                                .setAction(R.string.logout, logout -> {
+                                    FirebaseAuth.getInstance().signOut();
+                                    finish();
+                                }).show();
+                        break;
+                    case R.id.nav_account:
+                        ActivityUtils.replaceFragment(getSupportFragmentManager(),
+                                ProfileSettingsFragment.newInstance(),
+                                R.id.container,
+                                false,
+                                android.R.anim.fade_in,
+                                android.R.anim.fade_out
+                        );
+                        break;
+                    default:
+                        break;
+                }
+                item.setChecked(!item.isChecked());
+                mDrawerLayout.closeDrawers();
+
             }
-            item.setChecked(!item.isChecked());
             return true;
         });
 
