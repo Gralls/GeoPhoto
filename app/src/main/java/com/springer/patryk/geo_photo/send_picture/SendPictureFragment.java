@@ -19,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -81,7 +80,7 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
                         mPresenter.savePicture(FirebaseAuth.getInstance().getCurrentUser().getUid(),
                                 location, isPublic.isChecked(), pictureDescription.getText().toString());
 
-                        //getActivity().onBackPressed();
+                        getActivity().onBackPressed();
                     })
                     .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
 
@@ -118,15 +117,16 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
         pictureView.setImageBitmap(bmp);
     }
 
+    //TODO Map freezing if navigating back from here
     @Override
     public void savePictureSuccessCallback() {
-        Toast.makeText(getContext(), "Picture saved!", Toast.LENGTH_SHORT).show();
-        getActivity().onBackPressed();
+//        Toast.makeText(getContext(), "Picture saved!", Toast.LENGTH_SHORT).show();
+//        getActivity().onBackPressed();
     }
 
     @Override
     public void savePictureErrorCallback() {
-        Toast.makeText(getContext(), "Something went wrong. Try again.", Toast.LENGTH_LONG).show();
-        viewAnimator.setDisplayedChild(0);
+//        Toast.makeText(getContext(), "Something went wrong. Try again.", Toast.LENGTH_LONG).show();
+//        viewAnimator.setDisplayedChild(0);
     }
 }

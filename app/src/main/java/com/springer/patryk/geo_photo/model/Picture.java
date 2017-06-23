@@ -101,6 +101,7 @@ public class Picture implements ClusterItem, Serializable {
                 .child(uid)
                 .child(UUID.randomUUID().toString() + ".jpg")
                 .putBytes(imageStorage);
+
         return Observable
                 .create(subscriber -> {
                     uploadTask.addOnSuccessListener(taskSnapshot -> {

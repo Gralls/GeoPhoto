@@ -42,12 +42,13 @@ public class SendPicturePresenter implements SendPictureContract.Presenter {
     public void savePicture(String userId, Location location, boolean isPublic, String pictureDescription) {
         Picture picture = new Picture(userId, location.getLongitude(), location.getLatitude(), imageResource);
         picture.setDescription(pictureDescription);
-        savePictureDisposable = picture.saveToFirebase(isPublic).subscribe(onNext -> {
-            mView.savePictureSuccessCallback();
-        }, onError -> {
-            mView.savePictureErrorCallback();
-            Log.e("SaveToFirebase", onError.getLocalizedMessage());
-        });
+        savePictureDisposable = picture.saveToFirebase(isPublic)
+                .subscribe(onNext -> {
+                    mView.savePictureSuccessCallback();
+                }, onError -> {
+                    mView.savePictureErrorCallback();
+                    Log.e("SaveToFirebase", onError.getLocalizedMessage());
+                });
     }
 
     @Override
