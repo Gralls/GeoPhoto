@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import io.reactivex.Observable;
+import io.reactivex.Completable;
 
 /**
  * Created by Patryk on 2017-03-26.
@@ -67,12 +67,12 @@ public class Picture implements ClusterItem, Serializable {
         return latitude;
     }
 
-    public String getDownloadUrl() {
-        return downloadUrl;
-    }
-
     public void setLatitude(Double latitude) {
         this.latitude = latitude;
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
     }
 
     public Map<String, Object> toMap() {
@@ -93,17 +93,16 @@ public class Picture implements ClusterItem, Serializable {
     }
 
     @SuppressWarnings("VisibleForTests")
-    public Observable<Picture> saveToFirebase(boolean isPublic) {
+    public Completable saveToFirebase(boolean isPublic) {
         this.publicPhoto = isPublic;
-        UploadTask uploadTask = FirebaseStorage
-                .getInstance()
-                .getReference()
-                .child(uid)
-                .child(UUID.randomUUID().toString() + ".jpg")
-                .putBytes(imageStorage);
-
-        return Observable
-                .create(subscriber -> {
+        return Completable
+                .fromAction(() -> {
+                    UploadTask uploadTask = FirebaseStorage
+                            .getInstance()
+                            .getReference()
+                            .child(uid)
+                            .child(UUID.randomUUID().toString() + ".jpg")
+                            .putBytes(imageStorage);
                     uploadTask.addOnSuccessListener(taskSnapshot -> {
                         Uri downloadUri = taskSnapshot.getDownloadUrl();
                         downloadUrl = downloadUri.toString();
@@ -115,23 +114,22 @@ public class Picture implements ClusterItem, Serializable {
                         childUpdates.put("/pictures/" + key, pictureValues);
 
                         mDatabase.updateChildren(childUpdates);
-                        subscriber.onNext(this);
                     });
-                    uploadTask.addOnFailureListener(error -> subscriber.onError(error.getCause()));
-
                 });
 
     }
 
-    public void removeFromFirebase(OnPictureRemovedListener callback) {
-        DatabaseReference database = FirebaseUtils.getDatabaseInstace().getReference("/pictures/" + this.pictureId);
-        StorageReference storage = FirebaseStorage.getInstance().getReferenceFromUrl(this.downloadUrl);
+    public Completable removeFromFirebase() {
+        return Completable.create(subscriber -> {
+            DatabaseReference database = FirebaseUtils.getDatabaseInstace().getReference("/pictures/" + this.pictureId);
+            StorageReference storage = FirebaseStorage.getInstance().getReferenceFromUrl(this.downloadUrl);
 
-        database.removeValue()
-                .addOnFailureListener(databaseRef -> callback.onFailure())
-                .addOnSuccessListener(databaseRef -> storage.delete()
-                        .addOnFailureListener(storageRef -> callback.onFailure())
-                        .addOnSuccessListener(storageRef -> callback.onSuccess()));
+            database.removeValue()
+                    .addOnFailureListener(databaseRef -> subscriber.onError(databaseRef.getCause()))
+                    .addOnSuccessListener(databaseRef -> storage.delete()
+                            .addOnFailureListener(storageRef -> subscriber.onError(storageRef.getCause()))
+                            .addOnSuccessListener(storageRef -> subscriber.onComplete()));
+        });
 
 
     }

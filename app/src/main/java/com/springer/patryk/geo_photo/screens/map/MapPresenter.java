@@ -1,4 +1,4 @@
-package com.springer.patryk.geo_photo.map;
+package com.springer.patryk.geo_photo.screens.map;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;

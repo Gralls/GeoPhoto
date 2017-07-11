@@ -1,4 +1,4 @@
-package com.springer.patryk.geo_photo.authentication.login;
+package com.springer.patryk.geo_photo.screens.authentication.login;
 
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +18,7 @@ import android.widget.Toast;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.springer.patryk.geo_photo.MainActivity;
 import com.springer.patryk.geo_photo.R;
-import com.springer.patryk.geo_photo.authentication.AuthenticationActivity;
+import com.springer.patryk.geo_photo.screens.authentication.AuthenticationActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -30,9 +30,6 @@ import io.reactivex.Observable;
  */
 
 public class LoginFragment extends Fragment implements LoginContract.View {
-
-    private LoginContract.Presenter mPresenter;
-    private LoginFragmentCallback mCallback;
 
     @BindView(R.id.login_email)
     TextInputEditText mEmail;
@@ -46,6 +43,8 @@ public class LoginFragment extends Fragment implements LoginContract.View {
     AppCompatButton mSubmit;
     @BindView(R.id.signup_link)
     TextView mRegisterLink;
+    private LoginContract.Presenter mPresenter;
+    private LoginFragmentCallback mCallback;
 
     public static LoginFragment newInstance() {
         return new LoginFragment();

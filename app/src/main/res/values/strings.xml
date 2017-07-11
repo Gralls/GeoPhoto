@@ -18,4 +18,5 @@
     <string name="permission_required_toast">Permission requierd</string>
     <string name="permission_rationale_location">permission_rationale_location</string>
     <string name="map">Map</string>
+    <string name="profile_settings_confirm">Save changes</string>
 </resources>

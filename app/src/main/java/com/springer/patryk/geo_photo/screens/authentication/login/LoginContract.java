@@ -1,4 +1,4 @@
-package com.springer.patryk.geo_photo.authentication.login;
+package com.springer.patryk.geo_photo.screens.authentication.login;
 
 import android.support.annotation.StringRes;
 

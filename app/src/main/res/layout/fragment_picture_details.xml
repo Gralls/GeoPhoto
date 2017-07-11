@@ -8,26 +8,38 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
-    <ImageView
-        android:id="@+id/picture_remove"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_gravity="end"
-        android:layout_margin="16dp"
-        android:background="@drawable/picture_background"
-        android:padding="5dp"
-        android:src="@drawable/ic_delete" />
+
+    <ViewAnimator
+        android:id="@+id/remove_picture_animator"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/picture_remove"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_gravity="end"
+            android:layout_margin="16dp"
+            android:background="@drawable/picture_background"
+            android:padding="5dp"
+            android:src="@drawable/ic_delete" />
+
+        <ProgressBar
+            android:layout_gravity="center"
+            android:layout_width="50dp"
+            android:layout_height="50dp" />
+    </ViewAnimator>
 
     <TextView
         android:id="@+id/picture_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:gravity="center"
-        android:textSize="20sp"
         android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
         android:background="@color/md_cyan_900"
-        android:textColor="@color/md_white_1000" />
+        android:gravity="center"
+        android:textColor="@color/md_white_1000"
+        android:textSize="20sp" />
 
 </RelativeLayout>

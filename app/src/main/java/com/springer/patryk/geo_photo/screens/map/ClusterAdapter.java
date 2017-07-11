@@ -1,4 +1,4 @@
-package com.springer.patryk.geo_photo.map;
+package com.springer.patryk.geo_photo.screens.map;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -76,6 +76,10 @@ class ClusterAdapter extends RecyclerView.Adapter<ClusterAdapter.ViewHolder> {
         notifyDataSetChanged();
     }
 
+    public interface BottomSheetPictureClickedListener {
+        void onPictureClick(Picture picture);
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imageView;
@@ -86,10 +90,6 @@ class ClusterAdapter extends RecyclerView.Adapter<ClusterAdapter.ViewHolder> {
             imageView = (ImageView) itemView.findViewById(R.id.cluster_picture);
             animator = (ViewAnimator) itemView.findViewById(R.id.picture_item_animator);
         }
-    }
-
-    public interface BottomSheetPictureClickedListener {
-        void onPictureClick(Picture picture);
     }
 
 }

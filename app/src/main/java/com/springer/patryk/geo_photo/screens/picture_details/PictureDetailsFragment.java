@@ -1,4 +1,4 @@
-package com.springer.patryk.geo_photo.picture_details;
+package com.springer.patryk.geo_photo.screens.picture_details;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewAnimator;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.jakewharton.rxbinding2.view.RxView;
@@ -38,6 +39,8 @@ public class PictureDetailsFragment extends Fragment implements PictureDetailsCo
     ImageView pictureImage;
     @BindView(R.id.picture_label)
     TextView pictureDescription;
+    @BindView(R.id.remove_picture_animator)
+    ViewAnimator viewAnimator;
 
     private Observable removePictureObservable;
     private PictureDetailsContract.Presenter mPresenter;
@@ -80,8 +83,8 @@ public class PictureDetailsFragment extends Fragment implements PictureDetailsCo
         removePictureObservable.subscribe(onNext ->
                 Snackbar.make(removePicture, R.string.delete_picture_prove, Snackbar.LENGTH_LONG)
                         .setAction("Delete", snackbar -> {
+                            viewAnimator.setDisplayedChild(1);
                             mPresenter.removePicture();
-                            getActivity().onBackPressed();
                         }).show());
     }
 
@@ -110,10 +113,12 @@ public class PictureDetailsFragment extends Fragment implements PictureDetailsCo
     @Override
     public void onPictureDeleteSuccess() {
         Toast.makeText(mContext, R.string.picture_removed_info, Toast.LENGTH_SHORT).show();
+        getActivity().onBackPressed();
     }
 
     @Override
     public void onPictureDeleteFailure() {
+        viewAnimator.setDisplayedChild(0);
         Toast.makeText(mContext, R.string.picture_removed_error, Toast.LENGTH_SHORT).show();
     }
 }

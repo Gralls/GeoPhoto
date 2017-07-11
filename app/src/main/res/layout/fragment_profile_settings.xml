@@ -2,14 +2,34 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="56dp"
     android:orientation="vertical"
-    android:paddingLeft="24dp"
-    android:paddingRight="24dp">
+    android:padding="24dp">
 
     <ImageView
-        android:id="@+id/profile_picture"
+        android:id="@+id/profile_settings_picture"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="16dp"
+        android:background="@color/md_red_900"
+        android:src="@drawable/ic_person" />
+
+    <android.support.design.widget.TextInputEditText
+        android:id="@+id/profile_settings_username"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:hint="Username" />
+
+    <android.support.design.widget.TextInputEditText
+        android:id="@+id/profile_settings_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="E-mail" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/profile_settings_confirm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/profile_settings_confirm" />
 
 </LinearLayout>

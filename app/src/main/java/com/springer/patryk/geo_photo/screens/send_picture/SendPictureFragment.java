@@ -1,4 +1,4 @@
-package com.springer.patryk.geo_photo.send_picture;
+package com.springer.patryk.geo_photo.screens.send_picture;
 
 import android.Manifest;
 import android.content.Context;
@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,8 +35,6 @@ import butterknife.ButterKnife;
 public class SendPictureFragment extends Fragment implements SendPictureContract.View {
 
 
-    private SendPictureContract.Presenter mPresenter;
-
     @BindView(R.id.new_picture)
     ImageView pictureView;
     @BindView(R.id.send_picture)
@@ -44,6 +43,7 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
     FloatingActionButton removePicture;
     @BindView(R.id.send_picture_animator)
     ViewAnimator viewAnimator;
+    private SendPictureContract.Presenter mPresenter;
 
     public static SendPictureFragment newInstance() {
         return new SendPictureFragment();
@@ -80,7 +80,6 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
                         mPresenter.savePicture(FirebaseAuth.getInstance().getCurrentUser().getUid(),
                                 location, isPublic.isChecked(), pictureDescription.getText().toString());
 
-                        getActivity().onBackPressed();
                     })
                     .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
 
@@ -120,13 +119,13 @@ public class SendPictureFragment extends Fragment implements SendPictureContract
     //TODO Map freezing if navigating back from here
     @Override
     public void savePictureSuccessCallback() {
-//        Toast.makeText(getContext(), "Picture saved!", Toast.LENGTH_SHORT).show();
-//        getActivity().onBackPressed();
+        Toast.makeText(getContext(), "Picture saved!", Toast.LENGTH_SHORT).show();
+        getActivity().onBackPressed();
     }
 
     @Override
     public void savePictureErrorCallback() {
-//        Toast.makeText(getContext(), "Something went wrong. Try again.", Toast.LENGTH_LONG).show();
-//        viewAnimator.setDisplayedChild(0);
+        viewAnimator.setDisplayedChild(0);
+        Toast.makeText(getContext(), R.string.picture_removed_error, Toast.LENGTH_LONG).show();
     }
 }

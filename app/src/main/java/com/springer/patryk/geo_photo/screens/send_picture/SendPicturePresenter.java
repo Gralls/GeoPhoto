@@ -1,4 +1,4 @@
-package com.springer.patryk.geo_photo.send_picture;
+package com.springer.patryk.geo_photo.screens.send_picture;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,8 +10,6 @@ import com.springer.patryk.geo_photo.model.Picture;
 
 import java.io.File;
 
-import io.reactivex.disposables.Disposable;
-
 /**
  * Created by Patryk on 2017-03-22.
  */
@@ -20,42 +18,9 @@ public class SendPicturePresenter implements SendPictureContract.Presenter {
 
     private SendPictureContract.View mView;
     private Bitmap imageResource;
-    private Disposable savePictureDisposable;
 
     public SendPicturePresenter(SendPictureContract.View mapView) {
         mView = mapView;
-    }
-
-    @Override
-    public void subscribe() {
-
-    }
-
-    @Override
-    public void unsubscribe() {
-        if (!savePictureDisposable.isDisposed()) {
-            savePictureDisposable.dispose();
-        }
-    }
-
-    @Override
-    public void savePicture(String userId, Location location, boolean isPublic, String pictureDescription) {
-        Picture picture = new Picture(userId, location.getLongitude(), location.getLatitude(), imageResource);
-        picture.setDescription(pictureDescription);
-        savePictureDisposable = picture.saveToFirebase(isPublic)
-                .subscribe(onNext -> {
-                    mView.savePictureSuccessCallback();
-                }, onError -> {
-                    mView.savePictureErrorCallback();
-                    Log.e("SaveToFirebase", onError.getLocalizedMessage());
-                });
-    }
-
-    @Override
-    public void convertUriToBitmap(Uri imageUri) {
-        File file = new File(imageUri.getPath());
-        imageResource = decodeBitmapFromFile(file.getAbsolutePath(), 1920, 1080);
-        mView.setImageResource(imageResource);
     }
 
     public static Bitmap decodeBitmapFromFile(String path, int reqWidth, int reqHeight) {
@@ -80,5 +45,36 @@ public class SendPicturePresenter implements SendPictureContract.Presenter {
         options.inJustDecodeBounds = false;
 
         return BitmapFactory.decodeFile(path, options);
+    }
+
+    @Override
+    public void subscribe() {
+
+    }
+
+    @Override
+    public void unsubscribe() {
+
+    }
+
+    @Override
+    public void savePicture(String userId, Location location, boolean isPublic, String pictureDescription) {
+        Picture picture = new Picture(userId, location.getLongitude(), location.getLatitude(), imageResource);
+        picture.setDescription(pictureDescription);
+        picture.saveToFirebase(isPublic)
+                .subscribe(() ->
+                                mView.savePictureSuccessCallback(),
+                        throwable -> {
+                            mView.savePictureErrorCallback();
+                            Log.e("SaveToFirebase", throwable.getLocalizedMessage());
+                        });
+
+    }
+
+    @Override
+    public void convertUriToBitmap(Uri imageUri) {
+        File file = new File(imageUri.getPath());
+        imageResource = decodeBitmapFromFile(file.getAbsolutePath(), 1920, 1080);
+        mView.setImageResource(imageResource);
     }
 }

@@ -1,4 +1,4 @@
-package com.springer.patryk.geo_photo.authentication.register;
+package com.springer.patryk.geo_photo.screens.authentication.register;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.springer.patryk.geo_photo.R;
-import com.springer.patryk.geo_photo.authentication.AuthenticationActivity;
+import com.springer.patryk.geo_photo.screens.authentication.AuthenticationActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -28,9 +28,6 @@ import io.reactivex.Observable;
  */
 
 public class RegisterFragment extends Fragment implements RegisterContract.View {
-
-    private RegisterContract.Presenter mPresenter;
-    private RegisterFragmentCallback mCallback;
 
     @BindView(R.id.register_email)
     TextInputEditText mEmail;
@@ -48,6 +45,8 @@ public class RegisterFragment extends Fragment implements RegisterContract.View 
     AppCompatButton mSubmit;
     @BindView(R.id.signin_link)
     TextView loginLink;
+    private RegisterContract.Presenter mPresenter;
+    private RegisterFragmentCallback mCallback;
 
     public static RegisterFragment newInstance() {
         return new RegisterFragment();

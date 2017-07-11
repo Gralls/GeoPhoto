@@ -26,7 +26,7 @@ public class ActivityUtils {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(animIn, animOut);
         transaction.replace(frameId, fragment);
-        if(addToBackStack)
+        if (addToBackStack)
             transaction.addToBackStack(null);
         transaction.commit();
     }

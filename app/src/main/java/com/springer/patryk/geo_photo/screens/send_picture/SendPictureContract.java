@@ -1,4 +1,4 @@
-package com.springer.patryk.geo_photo.send_picture;
+package com.springer.patryk.geo_photo.screens.send_picture;
 
 import android.graphics.Bitmap;
 import android.location.Location;

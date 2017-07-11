@@ -23,11 +23,11 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.springer.patryk.geo_photo.map.MapFragment;
 import com.springer.patryk.geo_photo.model.Picture;
-import com.springer.patryk.geo_photo.picture_details.PictureDetailsFragment;
-import com.springer.patryk.geo_photo.profile_settings.ProfileSettingsFragment;
-import com.springer.patryk.geo_photo.send_picture.SendPictureFragment;
+import com.springer.patryk.geo_photo.screens.map.MapFragment;
+import com.springer.patryk.geo_photo.screens.picture_details.PictureDetailsFragment;
+import com.springer.patryk.geo_photo.screens.profile_settings.ProfileSettingsFragment;
+import com.springer.patryk.geo_photo.screens.send_picture.SendPictureFragment;
 import com.springer.patryk.geo_photo.utils.ActivityUtils;
 
 import butterknife.BindView;
@@ -40,37 +40,14 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity implements MapFragment.PictureTakenCallback, MapFragment.ClusterClicked {
 
     private static final int PERMISSION_ALL_REQUEST_CODEON = 1;
-    private MapFragment mapFragment;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
     @BindView(R.id.nav_view)
     NavigationView mNavigationView;
+    private MapFragment mapFragment;
     private ActionBarDrawerToggle mDrawerToggle;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
-        mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.container);
-        if (mapFragment == null) {
-            mapFragment = MapFragment.newInstance();
-            ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), mapFragment, R.id.container);
-        }
-
-        checkPermissions(this);
-
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        View navHeader = mNavigationView.getHeaderView(0);
-        ((TextView) navHeader.findViewById(R.id.name)).setText(user.getEmail());
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        setupDrawer();
-    }
 
     public static void checkPermissions(Activity activity) {
         String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.CAMERA};
@@ -88,6 +65,30 @@ public class MainActivity extends AppCompatActivity implements MapFragment.Pictu
             }
         }
         return true;
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+        mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.container);
+        if (mapFragment == null) {
+            mapFragment = MapFragment.newInstance();
+            ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), mapFragment, R.id.container);
+        }
+
+        checkPermissions(this);
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        View navHeader = mNavigationView.getHeaderView(0);
+        ((TextView) navHeader.findViewById(R.id.nav_header_email)).setText(user.getEmail());
+        ((TextView) navHeader.findViewById(R.id.nav_header_name)).setText(user.getDisplayName());
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        setupDrawer();
     }
 
     private void setupDrawer() {

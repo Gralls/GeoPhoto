@@ -1,4 +1,4 @@
-package com.springer.patryk.geo_photo.picture_details;
+package com.springer.patryk.geo_photo.screens.picture_details;
 
 import com.springer.patryk.geo_photo.BasePresenter;
 import com.springer.patryk.geo_photo.BaseView;

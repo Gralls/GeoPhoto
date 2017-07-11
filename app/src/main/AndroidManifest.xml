@@ -26,7 +26,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name="com.springer.patryk.geo_photo.authentication.AuthenticationActivity"
+            android:name=".screens.authentication.AuthenticationActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Dark">
             <intent-filter>

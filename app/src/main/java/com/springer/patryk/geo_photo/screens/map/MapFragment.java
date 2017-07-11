@@ -1,4 +1,4 @@
-package com.springer.patryk.geo_photo.map;
+package com.springer.patryk.geo_photo.screens.map;
 
 import android.Manifest;
 import android.app.Activity;
@@ -65,17 +65,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
+    private static final int CAPTURE_IMAGE_ACTIVITY = 1;
+    private static final String PICTURE_DIR = "pictures";
+    private static final String PICTURE_FILENAME = "image.jpg";
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
     @BindView(R.id.take_picture)
     FloatingActionButton takePicture;
     @BindView(R.id.bottom_sheet)
     FrameLayout frameLayout;
     @BindView(R.id.cluster_pictures)
     RecyclerView bottomPictures;
-
-    private static final int CAPTURE_IMAGE_ACTIVITY = 1;
-    private static final String PICTURE_DIR = "pictures";
-    private static final String PICTURE_FILENAME = "image.jpg";
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
     private MapContract.Presenter mPresenter;
     private PictureTakenCallback mCallback;
     private ClusterClicked clusterClickedCallback;
@@ -211,7 +210,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapCont
             PermissionUtils.requestPermission(getActivity(), LOCATION_PERMISSION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION, false);
         }
         mClusterManager = new ClusterManager<>(getContext(), map);
-        mClusterManager.setRenderer(new com.springer.patryk.geo_photo.map.ClusterRenderer(getContext(), map, mClusterManager));
+        mClusterManager.setRenderer(new com.springer.patryk.geo_photo.screens.map.ClusterRenderer(getContext(), map, mClusterManager));
         mClusterManager.setOnClusterItemClickListener(picture -> {
             clickedClusterItem = picture;
             return false;
