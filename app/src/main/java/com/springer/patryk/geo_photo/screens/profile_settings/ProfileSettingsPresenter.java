@@ -1,11 +1,5 @@
 package com.springer.patryk.geo_photo.screens.profile_settings;
 
-import android.util.Log;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
-
 /**
  * Created by Patryk on 2017-03-22.
  */
@@ -29,19 +23,25 @@ public class ProfileSettingsPresenter implements ProfileSettingsContract.Present
 
     }
 
-
+    //TODO
     @Override
     public void changeProfile(String username, String email) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        UserProfileChangeRequest.Builder profileChangeRequest = new UserProfileChangeRequest.Builder();
-
-        if (!username.isEmpty()) {
-            profileChangeRequest.setDisplayName(username);
-            user.updateProfile(profileChangeRequest.build());
-        }
-        if (!email.isEmpty()) {
-            user.updateEmail(email);
-        }
-        Log.v(LOG_TAG, "Username: " + username + ", Email: " + email);
+//        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+//        UserProfileChangeRequest.Builder profileChangeRequest = new UserProfileChangeRequest.Builder();
+//
+//        Observable.create(subscriber -> {
+//
+//        });
+//        if (!username.isEmpty()) {
+//            profileChangeRequest.setDisplayName(username);
+//            user.updateProfile(profileChangeRequest.build())
+//                    .addOnSuccessListener(aVoid -> {
+//
+//                    });
+//        }
+//        if (!email.isEmpty()) {
+//            user.updateEmail(email);
+//        }
+//        Log.v(LOG_TAG, "Username: " + username + ", Email: " + email);
     }
 }

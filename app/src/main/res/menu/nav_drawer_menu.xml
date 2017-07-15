@@ -3,18 +3,23 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_map"
+            android:checked="true"
             android:icon="@drawable/ic_map"
-            android:title="@string/map"
-            android:checked="true" />
+            android:title="@string/map" />
+        <item
+            android:id="@+id/nav_pic_list"
+            android:checked="false"
+            android:icon="@drawable/ic_list"
+            android:title="@string/nav_all_pictures" />
         <item
             android:id="@+id/nav_account"
+            android:checked="false"
             android:icon="@drawable/ic_person"
-            android:title="@string/profile_settings"
-            android:checked="false" />
+            android:title="@string/profile_settings" />
         <item
             android:id="@+id/nav_logout"
+            android:checked="false"
             android:icon="@drawable/ic_exit"
-            android:title="@string/logout"
-            android:checked="false" />
+            android:title="@string/logout" />
     </group>
 </menu>
