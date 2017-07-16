@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.PatternsCompat;
 import android.support.v7.widget.AppCompatButton;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -80,7 +81,7 @@ public class LoginFragment extends Fragment implements LoginContract.View {
 
         Observable<Boolean> emailObservable = RxTextView.afterTextChangeEvents(mEmail)
                 .skipInitialValue()
-                .map(inputText -> inputText.editable().toString().matches("^\\S+@\\S+$"))
+                .map(inputText -> PatternsCompat.EMAIL_ADDRESS.matcher(inputText.editable().toString()).matches())
                 .distinctUntilChanged();
         emailObservable.subscribe(isValid -> mEmailLayout.setError(isValid ? null : "Invalid email"));
 

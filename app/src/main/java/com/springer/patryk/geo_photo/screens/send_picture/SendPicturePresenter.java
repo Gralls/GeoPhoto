@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.springer.patryk.geo_photo.model.Picture;
+import com.springer.patryk.geo_photo.utils.FileUtils;
 
 import java.io.File;
 
@@ -23,29 +24,7 @@ public class SendPicturePresenter implements SendPictureContract.Presenter {
         mView = mapView;
     }
 
-    public static Bitmap decodeBitmapFromFile(String path, int reqWidth, int reqHeight) {
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(path, options);
 
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        options.inPreferredConfig = Bitmap.Config.RGB_565;
-        int inSampleSize = 1;
-
-        if (height > reqHeight)
-            inSampleSize = Math.round((float) height / (float) reqHeight);
-
-        int expectedWidth = width / inSampleSize;
-
-        if (expectedWidth > reqWidth)
-            inSampleSize = Math.round((float) width / (float) reqWidth);
-
-        options.inSampleSize = inSampleSize;
-        options.inJustDecodeBounds = false;
-
-        return BitmapFactory.decodeFile(path, options);
-    }
 
     @Override
     public void subscribe() {
@@ -74,7 +53,7 @@ public class SendPicturePresenter implements SendPictureContract.Presenter {
     @Override
     public void convertUriToBitmap(Uri imageUri) {
         File file = new File(imageUri.getPath());
-        imageResource = decodeBitmapFromFile(file.getAbsolutePath(), 1920, 1080);
+        imageResource = FileUtils.decodeBitmapFromFile(file.getAbsolutePath(), 1920, 1080);
         mView.setImageResource(imageResource);
     }
 }

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/pictures_list_item_image"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+        tools:src="@drawable/logo" />
+
+    <TextView
+        android:id="@+id/pictures_list_item_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/pictures_list_item_image"
+        android:textColor="@color/md_black_1000"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        tools:text="SUPER DUPER NAJLEPSZY OPIS" />
+
+    <TextView
+        android:id="@+id/pictures_list_item_owner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/pictures_list_item_text"
+        android:layout_toEndOf="@id/pictures_list_item_image"
+        android:textColor="@color/md_black_1000"
+        tools:text="Zrobione przez: Patryk" />
+
+    <ImageView
+        android:id="@+id/pictures_list_item_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/pictures_list_item_image"
+        android:layout_alignParentEnd="true"
+        android:padding="10dp"
+        android:src="@drawable/ic_delete"
+        android:tint="@color/md_red_700"/>
+
+    <ImageView
+        android:id="@+id/pictures_list_item_navigation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/pictures_list_item_image"
+        android:layout_toEndOf="@id/pictures_list_item_image"
+        android:padding="10dp"
+        android:src="@drawable/ic_gps" />
+</RelativeLayout>
