@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.springer.patryk.geo_photo.R;
 
 /**
@@ -48,7 +49,7 @@ public class RegisterPresenter implements RegisterContract.Presenter {
     }
 
     @Override
-    public void checkCredentials(String email, String password, String confirmPassword) {
+    public void checkCredentials(String username, String email, String password, String confirmPassword) {
         boolean validation = true;
         if (email.isEmpty()) {
             validation = false;
@@ -68,10 +69,10 @@ public class RegisterPresenter implements RegisterContract.Presenter {
             mAuthenticationView.showConfirmPasswordError(R.string.different_passwords_error);
         }
         if (validation)
-            createUser(email, password);
+            createUser(username, email, password);
     }
 
-    private void createUser(String email, String password) {
+    private void createUser(String username, String email, String password) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
@@ -79,8 +80,25 @@ public class RegisterPresenter implements RegisterContract.Presenter {
                         Log.w(TAG, "signInWithEmail:failed", task.getException());
                         mAuthenticationView.showAuthenticationError();
                     } else {
-                        mAuthenticationView.showMainPage();
+                        if (!username.isEmpty()) {
+                            setUsername(username);
+                        }
                     }
                 });
+    }
+
+    private void setUsername(String username) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                .setDisplayName(username)
+                .build();
+
+        user.updateProfile(profileUpdates)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        mAuthenticationView.showMainPage();
+                    }
+                })
+                .addOnFailureListener(e -> mAuthenticationView.showAuthenticationError());
     }
 }

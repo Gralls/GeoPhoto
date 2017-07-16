@@ -1,6 +1,7 @@
 package com.springer.patryk.geo_photo.screens.authentication.register;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
+import com.springer.patryk.geo_photo.MainActivity;
 import com.springer.patryk.geo_photo.R;
 import com.springer.patryk.geo_photo.screens.authentication.AuthenticationActivity;
 
@@ -41,6 +43,10 @@ public class RegisterFragment extends Fragment implements RegisterContract.View 
     TextInputEditText mConfirmPassword;
     @BindView(R.id.register_confirm_password_layout)
     TextInputLayout mConfirmPasswordLayout;
+    @BindView(R.id.register_username)
+    TextInputEditText mUsername;
+    @BindView(R.id.register_username_layout)
+    TextInputLayout mUsernameLayout;
     @BindView(R.id.register_button)
     AppCompatButton mSubmit;
     @BindView(R.id.signin_link)
@@ -101,7 +107,7 @@ public class RegisterFragment extends Fragment implements RegisterContract.View 
                 .subscribe(valid -> mSubmit.setEnabled(valid));
 
         mSubmit.setOnClickListener(view -> {
-            mPresenter.checkCredentials(mEmail.getText().toString()
+            mPresenter.checkCredentials(mUsername.getText().toString(), mEmail.getText().toString()
                     , mPassword.getText().toString(), mConfirmPassword.getText().toString()
             );
         });
@@ -151,6 +157,8 @@ public class RegisterFragment extends Fragment implements RegisterContract.View 
     @Override
     public void showMainPage() {
         Toast.makeText(getContext(), "Authentication succeeded", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        startActivity(intent);
     }
 
     public interface RegisterFragmentCallback {

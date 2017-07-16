@@ -27,7 +27,7 @@ interface RegisterContract {
 
     interface Presenter extends BasePresenter {
 
-        void checkCredentials(String email, String password, String confirmPassword);
+        void checkCredentials(String username, String email, String password, String confirmPassword);
 
     }
 
